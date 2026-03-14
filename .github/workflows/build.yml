@@ -23,15 +23,15 @@ jobs:
 
       - name: Build Docker Image via Nix
         run: |
-          nix-build --option sandbox false docker.nix -o PropProp.tar.gz
+          nix-build --option sandbox false docker.nix -o propprop.tar.gz
         env:
           NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM: 1
 
       - name: Verify Build
         run: |
-          if [ -L PropProp.tar.gz ]; then
-            echo "Build successful! PropProp.tar.gz created."
+          if [ -L propprop.tar.gz ]; then
+            echo "Build successful! propprop.tar.gz created."
           else
-            echo "Build failed! PropProp.tar.gz not found."
+            echo "Build failed! propprop.tar.gz not found."
             exit 1
           fi
