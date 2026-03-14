@@ -24,10 +24,10 @@ git submodule update
 Run
 
 ```
-$ nix-build docker.nix -o PropProp.tar.gz
+$ nix-build docker.nix -o propprop.tar.gz
 ```
 
-This produces a file called `PropProp.tar.gz` (a symlink to the actual
+This produces a file called `propprop.tar.gz` (a symlink to the actual
 image, which is in the Nix store).
 
 See [artifact/README.md](artifact/README.md) for further
