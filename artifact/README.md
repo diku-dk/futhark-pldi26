@@ -19,11 +19,11 @@ requirements are modest (less than 1GiB).
 ## Getting started
 
 The artifact takes the form of a Docker image
-`607.tar.gz`. You can load it into Docker with this
+`PropProp.tar.gz`. You can load it into Docker with this
 command:
 
 ```
-$ docker load -i 607.tar.gz
+$ docker load -i PropProp.tar.gz
 ```
 
 (Depending on your system configuration, this may or may not require
@@ -32,7 +32,13 @@ root access.)
 You can then run the Docker image with this command:
 
 ```
-$ docker run -it 607:latest
+$ docker run --rm -it PropProp:latest
+```
+
+If you'd like to pass your GPU through to the container, run
+
+```
+$ docker run --rm --device nvidia.com/gpu=all -it PropProp:latest
 ```
 
 ## Step-by-Step instructions

@@ -1,0 +1,3 @@
+[submodule "artifact/futhark-PropProp"]
+	path = artifact/futhark-PropProp
+	url = git@github.com:diku-dk/futhark.git
