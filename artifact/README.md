@@ -1,9 +1,17 @@
-# Artifact for the paper *AUTOMAP: Inferring Rank-Polymorphic Function Applications with Integer Linear Programming*
+# Artifact for the paper *Verifying Array Properties in Pure Data-Parallel Programs*
 
 ## Introduction
 
-This artifact reproduces the quantitative evaluation discussed in
-Section 9 of the paper, in particular reproducing Fig. 18 and Fig. 19.
+This artifact includes the Dafny programs discussed in Section 2.1
+and reproduces the evaluation results in Section 5 of the paper.
+
+See the `./dafny` folder for further instructions on Section 2.1. The rest of
+this readme pertains to the evaluation section.
+
+
+
+
+# UPDATE THE REST
 
 We perform a comparative study on a set of pairs of similar benchmark
 programs. For each pair, one of the programs is the "original", and

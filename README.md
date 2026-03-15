@@ -1,4 +1,4 @@
-# Meta-Artifact for the paper *AUTOMAP: Inferring Rank-Polymorphic Function Applications with Integer Linear Programming*
+# Meta-Artifact for the paper *Verifying Array Properties in Pure Data-Parallel Programs*
 
 This repository contains a Nix derivation for building the artifact (a
 Docker image) for the paper. See [artifact/](artifact/) for the
