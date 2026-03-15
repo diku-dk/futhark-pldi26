@@ -44,6 +44,7 @@ in pkgs.dockerTools.buildImage {
       nano
       which
       vim
+      dafny
     ];
   };
 
