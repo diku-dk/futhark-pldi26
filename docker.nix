@@ -46,20 +46,18 @@ let
     ];
   };
 
-in pkgs.dockerTools.buildLayeredImage {
+in pkgs.dockerTools.buildImage {
   name = "propprop";
   tag = "latest";
   created = "now";
   fromImage = cuda;
 
-  contents = [ artifact ];
+  copyToRoot = artifact;
 
   config = {
     Env = [
       "PATH=${imageEnv}/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
-      "XDG_CACHE_HOME=/tmp/.cache"
-
+      "XDG_CACHE_HOME=/tmp"
       "CPATH=/usr/local/cuda/include"
       "C_INCLUDE_PATH=/usr/local/cuda/include"
       "CPLUS_INCLUDE_PATH=/usr/local/cuda/include"
