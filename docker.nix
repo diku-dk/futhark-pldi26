@@ -21,34 +21,31 @@ let
     finalImageTag = "13.0.0-devel-ubuntu24.04";
   };
 
-in pkgs.dockerTools.buildImage {
+in pkgs.dockerTools.buildLayeredImage {
   name = "propprop";
   tag = "latest";
   created = "now";
   fromImage = cuda;
-  diskSize = 15000;
-  copyToRoot = pkgs.buildEnv {
-    name = "image-root";
-    paths = with pkgs; [
-      futhark-PropProp
-      bashInteractive
 
-      # Dependencies
-      glibc
-      coreutils
-      gnugrep
-      gnused
-      gnumake
-      findutils
-      less
-      nano
-      which
-      vim
-      dafny
-    ];
-  };
+  contents = with pkgs; [
+    futhark-PropProp
+    bashInteractive
 
-  runAsRoot = ''
+    # Dependencies
+    glibc
+    coreutils
+    gnugrep
+    gnused
+    gnumake
+    findutils
+    less
+    nano
+    which
+    vim
+    dafny
+  ];
+
+  extraCommands = ''
     mkdir -p /tmp
     chmod 777 /tmp
 
