@@ -16,10 +16,12 @@ jobs:
         submodules: recursive
 
     - name: Install Nix
-      uses: DeterminateSystems/nix-installer-action@v10
+      uses: cachix/install-nix-action@v31
       with:
-        extra-configs: |
-          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+        nix_path: nixpkgs=channel:nixos-unstable
+
+    - name: Magic Nix Cache
+      uses: DeterminateSystems/magic-nix-cache-action@v13
 
     - name: Build futhark-PropProp tarball
       id: build_futhark_tarball
