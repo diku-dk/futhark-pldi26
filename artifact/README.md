@@ -3,200 +3,132 @@
 ## Introduction
 
 This artifact includes the Dafny programs discussed in Section 2.1
-and reproduces the evaluation results in Section 5 of the paper.
+and reproduces Fig. 14 from Section 5 of the paper.
 
 See the `./dafny` folder for further instructions on Section 2.1. The rest of
 this readme pertains to the evaluation section.
 
-
-
-
-# UPDATE THE REST
-
-We perform a comparative study on a set of pairs of similar benchmark
-programs. For each pair, one of the programs is the "original", and
-the other has been rewritten to take advantage of the "AUTOMAP"
-feature discussed in the paper.
-
 ## Hardware dependencies
 
-None, although the Docker image uses x86-64 binaries, and so the
-system must be capable of running such an image. The memory
-requirements are modest (less than 1GiB).
+**Fig. 14 left table (verification):** No GPU required. Any x86-64 machine is
+sufficient. The check times will vary from the paper (measured on Apple M4) but
+all other values are fixed properties of the programs.
+
+**Fig. 14 right table (performance):** An NVIDIA GPU is required to reproduce
+the performance numbers. Pass it through to the container with
+`--device nvidia.com/gpu=all`. If no GPU is available, use `--skip-perf`
+to produce only the left table.
+
+For kmeans, the sparse datasets (movielens, nytimes, scrna) must be present in
+`futhark-PropProp/artifact_tools/perf-tests/kmeans-sparse/data/`. See
+[futhark-ad](https://github.com/diku-dk/futhark-ad/tree/master/kmeans/kmeans-sparse/data)
+for the datasets. Use `--skip-kmeans` to skip them.
 
 ## Getting started
 
-The artifact takes the form of a Docker image
-`propprop.tar.gz`. You can load it into Docker with this
-command:
+The artifact takes the form of a Docker image `propprop.tar.gz`. Load it with:
 
 ```
 $ docker load -i propprop.tar.gz
 ```
 
-(Depending on your system configuration, this may or may not require
-root access.)
-
-You can then run the Docker image with this command:
+Run it (CPU only):
 
 ```
 $ docker run --rm -it propprop:latest
 ```
 
-If you'd like to pass your GPU through to the container, run
+With GPU passthrough:
 
 ```
 $ docker run --rm --device nvidia.com/gpu=all -it propprop:latest
 ```
 
-## Step-by-Step instructions
+## Step-by-step instructions
 
-Running `make` will reproduce the quantitative evaluation discussed in
-Section 9 of the paper. This takes about 20 minutes on a modern
-computer. The results are printed on the terminal as they come in, and
-are also stored as files in the `results/` directory. A `data/`
-directory containing raw (unprocessed) data is also constructed, but
-can be ignored. Its contents are described further down for the
-benefit of future users who want to more deeply investigate the
-results. Finally, the artifact reproduces Fig. 18 and Fig. 19 from the
-paper.
-
-* Fig. 18 is available as `reports/fig18.pdf` and `reports/fig18.txt`,
-  with the latter also printed to the terminal.
-
-* Fig. 19 is available as `reports/fig19.txt`, and is also printed to
-  the terminal. The reported slowdown can vary from machine to
-  machine, but the other metrics should match the paper exactly.
-
-This completes the evaluation of the functionality as far as concerns
-reproducing the quantitative claims in the paper.
-
-### Retrieving the figures from the Docker container
-
-To copy a figure from the container for viewing, first obtain the container ID
-by running
+Inside the container, run:
 
 ```
-$ docker ps
+$ janet bench.janet
 ```
 
-You can then copy the figure using `docker cp`:
+This produces Fig. 14 in `results/fig14-<timestamp>.{md,tex}`. With `--pdf` it
+also compiles to PDF (requires latexmk in the image).
+
+**Verification table only** (no GPU, ~5–10 min depending on machine):
 
 ```
-$ docker cp <container ID>:<path to figure in the container> <destination>
+$ janet bench.janet --skip-perf
 ```
 
-
-### Interactive use
-
-If desired, AUTOMAP can be tried by starting a REPL with
+**Full evaluation with GPU** (~5–10 min verification + GPU benchmark time):
 
 ```
-$ futhark-automap repl
+$ janet bench.janet --pdf
 ```
 
-and entering valid expressions. Examples:
+**Multiple runs** (for more stable timing averages):
 
 ```
-> [1,2,3] + 2
-[3, 4, 5]
->  [1,2,3] * transpose (rep [4,5,6])
-[[4, 8, 12],
- [5, 10, 15],
- [6, 12, 18]]
+$ janet bench.janet --runs 3
 ```
 
-## Reusability Guide
+### Retrieving results from the container
 
-The artifact is reasonably straightforward to modify in two ways:
-modifying which benchmark programs are considered, and performing
-analysis on the raw data.
+```
+$ docker ps   # get container ID
+$ docker cp <container-id>:/artifact/results/fig14-<timestamp>.pdf .
+```
 
-### Changing benchmark programs
+## Output
 
-In `data.sh`, modify the shell function `programs`. This function
-produces paths to `.fut` programs that are relative to the directory
-`futhark-benchmarks-original` or `futhark-benchmarks-automap`. It is
-important that a version of the program exists in both of these
-directory trees (corresponding to a version of the program without and
-with use of AUTOMAP).
+Running `bench.janet` creates two directories:
 
-### Raw data files
+* `data/`: raw benchmark data as `.jdn` files (Janet Data Notation)
+  * `verify-<timestamp>-n<n>.jdn`: per-program verification and compile times
+  * `perf-<timestamp>.jdn`: GPU performance runtimes in microseconds
+* `results/`: generated tables
+  * `fig14-<timestamp>.md`: Markdown (human-readable)
+  * `fig14-<timestamp>.tex`: LaTeX (for inclusion in the paper)
+  * `fig14-<timestamp>.pdf`: rendered PDF (with `--pdf`)
 
-After running the artifact, the `data/` directory contains raw data.
-This data is processed to reproduce Fig. 18 and Fig. 19, but can also
-be subjected to other investigation. The following data is produced.
+## Interpretation
 
-* `data/ilps`: contains a pair of files for each benchmark program
-  `foo.fut`: an `.ilps` file (containing a table of the ILP size for
-  each function in the program), and a `.log` file containing the raw
-  (unprocessed) compiler logging output.
+**Left table (verification):** Check times will differ from the paper (measured
+on Apple M4) but should be in the same order of magnitude. The `% Compile`
+column reflects the fraction of total compile time spent on property analysis;
+this is machine-independent to a first approximation. All programs are verified
+safe (✓).
 
-* `data/ilp_table`: a table of the sizes of all ILP problems, keyed by
-  the (internal) name of the function that gave rise to them.
+**Right table (performance):** Speedup factors are hardware-dependent but should
+be qualitatively consistent with the paper's results.
 
-* `data/ilp_sizes`: a sorted list of the sizes of all ILP problems
-  produced during type checking the benchmark programs.
+## Running individual scripts
 
-* `data/ilp_stats`: various statistical measures derived from
-  `data/ilp_sizes`, including mean and median.
+Each Janet script can be run independently:
 
-* `data/ilp_largest`: the size (in number of constraints) of the
-  largest ILP problem encountered.
-
-* `data/maps_automap`: the total number of `map`s used in the
-  AUTOMAP-enabled benchmark programs.
-
-* `data/maps_original`: the total number of `map`s used in the original
-  benchmark programs.
-
-* `data/maps.txt`: contains a line for each benchmark program,
-  comprising the name of the program, the number of `map`s in the
-  original program, and the number of `map`s in the AUTOMAPped
-  program.
+```
+$ janet verify.janet --help   # verification timing only
+$ janet perf.janet    --help  # GPU benchmarks only
+$ janet table.janet   --help  # regenerate table from existing .jdn files
+```
 
 ## Running outside Docker
 
-The following system requirements are satisfied by the Docker image,
-and are only listed for the sake of completeness, in particular if you
-want to run it outside of Docker.
+Requirements:
 
-PATH must contain two compiler binaries `futhark-original` and
-`futhark-automap`, corresponding to the unmodified and AUTOMAP-enabled
-Futhark compiler.
-
-The following tools must also be available:
-
-* [scc](https://github.com/boyter/scc)
-
-* [hyperfine](https://github.com/sharkdp/hyperfine)
-
-* [gnuplot](http://gnuplot.info/)
-
-* [bc](https://www.gnu.org/software/bc/)
-
-* [awk](https://www.gnu.org/software/gawk/manual/gawk.html)
-
-* A handful of standard command like tools like `grep`, `find`, `wc`,
-  etc.
+* [Janet](https://janet-lang.org/) (the scripting language)
+* `futhark` on `PATH` (the modified compiler from `futhark-PropProp/`)
+* Python 3 (for JSON parsing in `perf.janet`)
+* `latexmk` (optional, for PDF output)
+* NVIDIA GPU + CUDA toolkit (optional, for performance benchmarks)
 
 ## Manifest
 
-This section describes every top-level file and directory in the
-artifact and its purpose.
-
-* `data.sh`: The main data analysis script, invoked by `Makefile`.
-
-* `findilps.awk`: An Awk script that extracts ILP programs from
-  compiler logs.
-
-* `futhark-benchmarks-automap`: The Futhark benchmark suite modified
-  to take advantage of `automap`.
-
-* `futhark-benchmarks-original`: The unmodified Futhark benchmark
-  suite.
-
-* `Makefile`: A simplistic Makefile that simply runs `data.sh`.
-
-More files and directories are created as part of the artifact as
-discussed above.
+* `bench.janet`: Main orchestration script.
+* `verify.janet`: Benchmarks verification check time for each program.
+* `perf.janet`: Runs GPU performance benchmarks for kmeans and partition2.
+* `table.janet`: Generates Fig. 14 as Markdown, LaTeX, and PDF.
+* `util.janet`: Shared utility functions.
+* `futhark-PropProp/`: The modified Futhark compiler (Haskell/Cabal project).
+* `dafny/`: Dafny programs for Section 2.1.

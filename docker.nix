@@ -13,8 +13,7 @@ let
   });
 
   artifact = pkgs.runCommand "container-artifact-dir" {} ''
-    mkdir -p $out/artifact
-    cp -r ${./artifact}/* $out/artifact/
+    cp -r ${./artifact} $out/artifact
   '';
 
   cuda = pkgs.dockerTools.pullImage {
@@ -31,6 +30,8 @@ let
       futhark-PropProp
       bashInteractive
       dafny
+      janet
+      python3
 
       # Dependencies
       glibc
