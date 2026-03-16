@@ -13,28 +13,13 @@ let
   });
   artifact = pkgs.copyPathToStore ./artifact;
 
-  cuda = (pkgs.dockerTools.pullImage {
+  cuda = pkgs.dockerTools.pullImage {
     imageName = "nvidia/cuda";
     imageDigest = "sha256:c2621d98e7de80c2aec5eb8403b19c67454c8f5b0c929e8588fd3563c9b6558d";
     sha256 = "sha256-eVMmE1AAPQb/wi1/JHBrXAITup7IKXKfRP9C3fBJkLI=";
     finalImageName = "nvidia/cuda";
     finalImageTag = "13.0.0-devel-ubuntu24.04";
-  }).overrideAttrs (oldAttrs: {
-    buildPhase = ''
-      skopeo_path="${oldAttrs.skopeo}/bin/skopeo"
-      image_name="${oldAttrs.imageName}"
-      image_digest="${oldAttrs.imageDigest}"
-      os_arg="--override-os ${oldAttrs.os}"
-      arch_arg="--override-arch ${oldAttrs.architecture}"
-      output_path="docker-archive:$out"
-
-      $skopeo_path copy \
-        $os_arg $arch_arg \
-        --src-no-creds \
-        "docker://$image_name@$image_digest" \
-        "$output_path"
-    '';
-  });
+  };
 
 in pkgs.dockerTools.buildImage {
   name = "propprop";
