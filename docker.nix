@@ -11,7 +11,10 @@ let
       ln -s $out/bin/futhark-PropProp $out/bin/futhark
     '';
   });
-  artifact = pkgs.copyPathToStore ./artifact;
+  artifactDir = pkgs.runCommand "container-artifact-dir" {} ''
+    mkdir -p $out/artifact
+    cp -r ${./artifact}/* $out/artifact/
+  '';
 
   cuda = pkgs.dockerTools.pullImage {
     imageName = "nvidia/cuda";
@@ -45,6 +48,7 @@ in pkgs.dockerTools.buildImage {
       which
       vim
       dafny
+      artifactDir
     ];
   };
 
@@ -72,7 +76,7 @@ EOF
 
   config = {
     Cmd = [ "${pkgs.bashInteractive}/bin/bash" "--login"];
-    WorkingDir = "${artifact}";
+    WorkingDir = "/artifact";
   };
 
 }
