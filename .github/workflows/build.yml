@@ -39,7 +39,8 @@ jobs:
           sudo chmod 755 /run/containers
           sudo mkdir -p "/run/containers/$(id -u runner)"
           sudo chown runner: "/run/containers/$(id -u runner)"
-          nix-build --option sandbox false docker.nix -o propprop.tar.gz
+          echo "commented out: nix-build --option sandbox false docker.nix -o propprop.tar.gz"
+          nix-build futhark.nix
         env:
           NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM: 1
 
