@@ -11,6 +11,16 @@ jobs:
     name: Build Docker Image
     runs-on: ubuntu-latest
     steps:
+      - name: Claim disk space
+        run: |
+          # Remove unused tools
+          sudo rm -rf /opt/microsoft
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/julia*
+          sudo rm -rf /usr/local/share/chromium
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /usr/share/swift
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
