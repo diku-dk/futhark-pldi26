@@ -51,3 +51,10 @@ jobs:
             echo "Build failed! propprop.tar.gz not found."
             exit 1
           fi
+
+      - name: Upload Docker Image Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: propprop-docker-image
+          path: propprop.tar.gz
+          retention-days: 7
