@@ -2,8 +2,8 @@
   "https://github.com/NixOS/nixpkgs/archive/0f1874526206d8a2d6f0a3925618cc45ac83049f.tar.gz")
   { } }:
 let
-  futhark-PropProp0 = import ./artifact/futhark-PropProp/default.nix { };
-  futhark-PropProp = futhark-PropProp0.overrideAttrs (old: {
+  futhark-PropPropArchive = import ./artifact/futhark-PropProp/default.nix { };
+  futhark-PropProp = futhark-PropPropArchive.overrideAttrs (old: {
     installPhase = ''
       mkdir -p $out/bin
       tar xf futhark-nightly.tar.xz
@@ -11,30 +11,26 @@ let
       ln -s $out/bin/futhark-PropProp $out/bin/futhark
     '';
   });
-  artifactDir = pkgs.runCommand "container-artifact-dir" {} ''
+
+  artifact = pkgs.runCommand "container-artifact-dir" {} ''
     mkdir -p $out/artifact
     cp -r ${./artifact}/* $out/artifact/
   '';
 
   cuda = pkgs.dockerTools.pullImage {
     imageName = "nvidia/cuda";
-    imageDigest = "sha256:c2621d98e7de80c2aec5eb8403b19c67454c8f5b0c929e8588fd3563c9b6558d";
-    sha256 = "sha256-eVMmE1AAPQb/wi1/JHBrXAITup7IKXKfRP9C3fBJkLI=";
+    imageDigest = "sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66";
+    sha256 = "sha256-eMo1+SfCjMh2zwXvfagw0v8QppUBdcJdhAct0f8MKlY=";
     finalImageName = "nvidia/cuda";
-    finalImageTag = "13.0.0-devel-ubuntu24.04";
+    finalImageTag = "12.8.1-devel-ubuntu24.04";
   };
 
-in pkgs.dockerTools.buildImage {
-  name = "propprop";
-  tag = "latest";
-  created = "now";
-  fromImage = cuda;
-
-  copyToRoot = pkgs.buildEnv {
-    name = "image-root";
+  imageEnv = pkgs.buildEnv {
+    name = "image-env";
     paths = with pkgs; [
       futhark-PropProp
       bashInteractive
+      dafny
 
       # Dependencies
       glibc
@@ -47,36 +43,30 @@ in pkgs.dockerTools.buildImage {
       nano
       which
       vim
-      dafny
-      artifactDir
     ];
   };
 
-  diskSize = 15000;
+in pkgs.dockerTools.buildLayeredImage {
+  name = "propprop";
+  tag = "latest";
+  created = "now";
+  fromImage = cuda;
 
-  runAsRoot = ''
-    mkdir -p /tmp
-    chmod 777 /tmp
-
-    mkdir -p /.cache
-    chmod 777 /.cache
-
-    mkdir -p /lib/x86_64-linux-gnu
-    ln -s /usr/lib/x86_64-linux-gnu/* /lib/x86_64-linux-gnu/
-
-    cat > /etc/profile.d/propprop.sh << 'EOF'
-export XDG_CACHE_HOME=/.cache
-export CPATH="/usr/local/cuda/include:$CPATH"
-export C_INCLUDE_PATH="/usr/local/cuda/include:$C_INCLUDE_PATH"
-export CPLUS_INCLUDE_PATH="/usr/local/cuda/include:$CPLUS_INCLUDE_PATH"
-export LIBRARY_PATH="/usr/local/cuda/lib64:/usr/local/cuda/lib64/stubs:$LIBRARY_PATH"
-export LD_LIBRARY_PATH="/usr/local/cuda/lib64:/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH"
-EOF
-  '';
+  contents = [ artifact ];
 
   config = {
-    Cmd = [ "${pkgs.bashInteractive}/bin/bash" "--login"];
+    Env = [
+      "PATH=${imageEnv}/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+      "XDG_CACHE_HOME=/tmp/.cache"
+
+      "CPATH=/usr/local/cuda/include"
+      "C_INCLUDE_PATH=/usr/local/cuda/include"
+      "CPLUS_INCLUDE_PATH=/usr/local/cuda/include"
+      "LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/lib64/stubs"
+      "LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/lib64/stubs:/usr/local/nvidia/lib:/usr/local/nvidia/lib64"
+    ];
+    Cmd = [ "${pkgs.bashInteractive}/bin/bash" "--login" ];
     WorkingDir = "/artifact";
   };
-
 }
