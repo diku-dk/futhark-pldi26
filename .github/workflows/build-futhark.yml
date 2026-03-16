@@ -1,0 +1,39 @@
+name: Build Futhark PropProp Package
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docker.nix'
+      - 'artifact/futhark-PropProp/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@v10
+      with:
+        extra-configs: |
+          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build futhark-PropProp tarball
+      id: build_futhark_tarball
+      run: |
+        nix-build --option sandbox false futhark.nix -o futhark.tar.gz
+      env:
+        NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM: 1
+
+    - name: Upload futhark-PropProp tarball Artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: futhark-PropProp-nightly-tarball
+        path: propprop.tar.gz
+        retention-days: 7

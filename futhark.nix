@@ -3,12 +3,4 @@
   { } }:
 let
   futhark-PropProp0 = import ./artifact/futhark-PropProp/default.nix { };
-  futhark-PropProp = futhark-PropProp0.overrideAttrs (old: {
-    installPhase = ''
-      mkdir -p $out/bin
-      tar xf futhark-nightly.tar.xz
-      cp futhark-nightly/bin/futhark $out/bin/futhark-PropProp
-      ln -s $out/bin/futhark-PropProp $out/bin/futhark
-    '';
-  });
-in futhark-PropProp
+in futhark-PropProp0
