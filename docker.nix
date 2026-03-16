@@ -21,48 +21,58 @@ let
     finalImageTag = "13.0.0-devel-ubuntu24.04";
   };
 
-in pkgs.dockerTools.buildLayeredImage {
+in pkgs.dockerTools.buildImage {
   name = "propprop";
   tag = "latest";
   created = "now";
   fromImage = cuda;
 
-  contents = with pkgs; [
-    futhark-PropProp
-    bashInteractive
+  copyToRoot = pkgs.buildEnv {
+    name = "image-root";
+    paths = with pkgs; [
+      futhark-PropProp
+      bashInteractive
 
-    # Dependencies
-    glibc
-    coreutils
-    gnugrep
-    gnused
-    gnumake
-    findutils
-    less
-    nano
-    which
-    vim
-    dafny
-  ];
+      # Dependencies
+      glibc
+      coreutils
+      gnugrep
+      gnused
+      gnumake
+      findutils
+      less
+      nano
+      which
+      vim
+      dafny
+    ];
+  };
 
-  extraCommands = ''
+  diskSize = 15000;
+
+  runAsRoot = ''
     mkdir -p /tmp
+    chmod 777 /tmp
+
     mkdir -p /.cache
+    chmod 777 /.cache
+
     mkdir -p /lib/x86_64-linux-gnu
     ln -s /usr/lib/x86_64-linux-gnu/* /lib/x86_64-linux-gnu/
+
+    cat > /etc/profile.d/propprop.sh << 'EOF'
+export XDG_CACHE_HOME=/.cache
+export CPATH="/usr/local/cuda/include:$CPATH"
+export C_INCLUDE_PATH="/usr/local/cuda/include:$C_INCLUDE_PATH"
+export CPLUS_INCLUDE_PATH="/usr/local/cuda/include:$CPLUS_INCLUDE_PATH"
+export LIBRARY_PATH="/usr/local/cuda/lib64:/usr/local/cuda/lib64/stubs:$LIBRARY_PATH"
+export LD_LIBRARY_PATH="/usr/local/cuda/lib64:/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH"
+EOF
   '';
 
   config = {
     Cmd = [ "${pkgs.bashInteractive}/bin/bash" "--login"];
     WorkingDir = "${artifact}";
-    Env = [
-      "XDG_CACHE_HOME=/.cache"
-      "CPATH=/usr/local/cuda/include:$CPATH"
-      "C_INCLUDE_PATH=/usr/local/cuda/include:$C_INCLUDE_PATH"
-      "CPLUS_INCLUDE_PATH=/usr/local/cuda/include:$CPLUS_INCLUDE_PATH"
-      "LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/lib64/stubs:$LIBRARY_PATH"
-      "LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH"
-    ];
   };
 
 }
