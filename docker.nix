@@ -13,6 +13,7 @@ let
   });
 
   artifact = pkgs.runCommand "container-artifact-dir" {} ''
+    mkdir -p $out
     cp -r ${./artifact} $out/artifact
   '';
 
