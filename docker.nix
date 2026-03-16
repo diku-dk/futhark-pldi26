@@ -4,6 +4,7 @@
 let
   futhark-PropProp0 = import ./artifact/futhark-PropProp/default.nix { };
   futhark-PropProp = futhark-PropProp0.overrideAttrs (old: {
+    ghcOpts = [ "-Wno-error" ];
     installPhase = ''
       mkdir -p $out/bin
       tar xf futhark-nightly.tar.xz
