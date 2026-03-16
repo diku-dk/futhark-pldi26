@@ -1,13 +1,10 @@
-name: Build Futhark PropProp Package
+name: Build Futhark PropProp
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [main, master]
   pull_request:
-    branches:
-      - main
-    paths:
-      - 'docker.nix'
-      - 'artifact/futhark-PropProp/**'
+    branches: [main, master]
 
 jobs:
   build:
