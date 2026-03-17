@@ -21,13 +21,12 @@ git submodule update
 
 ### Datasets
 
-The kmeans benchmark datasets (`movielens.in.gz`, `nytimes.in.gz`, `scrna.in.gz`)
-are stored in this repository via [Git LFS](https://git-lfs.com/) due to their
-size (~650 MB total). To fetch them after cloning:
+The kmeans benchmark datasets are not included in this repository. To include
+them, download `movielens.in.gz`, `nytimes.in.gz`, and `scrna.in.gz` from
+[diku-dk/futhark-ad](https://github.com/diku-dk/futhark-ad/tree/master/kmeans/kmeans-sparse/data)
+and place them in `artifact/perf-tests/kmeans-sparse/data/`. Then rebuild the
+Docker image. Without the datasets, kmeans benchmarks are automatically skipped.
 
-```
-git lfs pull
-```
 ### Building the Docker image
 
 Run
