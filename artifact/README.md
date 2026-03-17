@@ -109,6 +109,12 @@ See `dafny/README.md` for a description of the programs.
 * `results/`: generated tables
   * `fig14-<timestamp>.{md,tex,pdf}`: Fig. 14 in Markdown, LaTeX, and PDF formats
 
+> **Note:** Values for the columns "Properties & Annotations", "#S" and "#A" in
+> Fig. 14 are hardware independent and are not collected automatically. Instead
+> they are manually read off the source programs and are hardcoded in the
+> table-generating script. Automating this would require an outsized amount of
+> work and/or be brittle.
+
 ### Retrieving results from the container
 
 ```
