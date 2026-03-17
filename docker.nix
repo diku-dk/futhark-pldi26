@@ -12,9 +12,19 @@ let
     '';
   });
 
+  # Datasets are stored via Git LFS; media.githubusercontent.com serves LFS files directly.
+  kmeans-datasets = pkgs.runCommand "kmeans-datasets" { buildInputs = [ pkgs.wget ]; } ''
+    mkdir -p $out
+    wget -q "https://media.githubusercontent.com/media/diku-dk/futhark-ad-sc22/main/benchmarks/kmeans/sparse/data/movielens.in.gz" -O $out/movielens.in.gz
+    wget -q "https://media.githubusercontent.com/media/diku-dk/futhark-ad-sc22/main/benchmarks/kmeans/sparse/data/nytimes.in.gz"  -O $out/nytimes.in.gz
+    wget -q "https://media.githubusercontent.com/media/diku-dk/futhark-ad-sc22/main/benchmarks/kmeans/sparse/data/scrna.in.gz"    -O $out/scrna.in.gz
+  '';
+
   artifact = pkgs.runCommand "container-artifact-dir" {} ''
     mkdir -p $out
     cp -r ${./artifact} $out/artifact
+    mkdir -p $out/artifact/futhark-PropProp/artifact_tools/perf-tests/kmeans-sparse/data
+    cp ${kmeans-datasets}/*.in.gz $out/artifact/futhark-PropProp/artifact_tools/perf-tests/kmeans-sparse/data/
   '';
 
   cuda = pkgs.dockerTools.pullImage {

@@ -40,25 +40,33 @@
         (put result (string (parts 0) "\t" (parts 1)) (scan-number (parts 2))))))
   result)
 
-(defn run-futhark-bench [perf-dir subdir fut-file json-file &opt extra-args]
-  (default extra-args [])
+(defn run-futhark-bench [perf-dir subdir fut-file json-file]
   (def full-dir (string perf-dir "/" subdir))
   (def json-path (string full-dir "/" json-file))
-  (util/run [;["futhark" "bench" "--backend=cuda" (string "--json=" json-path)]
-              ;extra-args
-              fut-file]
-            full-dir)
+  (def [out exit-code]
+    (util/run-output* ["futhark" "bench" "--backend=cuda"
+                       (string "--json=" json-path) fut-file]
+                      full-dir))
+  (when (not= exit-code 0)
+    (eprintf "ERROR: futhark bench failed for %s:\n%s\n" fut-file out)
+    (os/exit exit-code))
   (parse-bench-json json-path))
 
 (defn bench-kmeans [perf-dir]
+  # futhark bench looks for <program>.tuning automatically; copy the shared
+  # tuning file to match each variant's expected name.
+  (def kmeans-dir (string perf-dir "/kmeans-sparse"))
+  (util/run ["sh" "-c"
+             "cp -f k10-manual.fut.tuning k10-manual-dynamic.fut.tuning 2>/dev/null; \
+              cp -f k10-manual.fut.tuning k10-manual-static.fut.tuning  2>/dev/null; \
+              true"]
+            kmeans-dir)
   (printf "Benchmarking kmeans (dynamic)...\n")
   (def dyn-data
-    (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-dynamic.fut"
-                       "kmeans-dynamic.json" ["--tuning=k10-manual.fut.tuning"]))
+    (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-dynamic.fut" "kmeans-dynamic.json"))
   (printf "Benchmarking kmeans (static)...\n")
   (def static-data
-    (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-static.fut"
-                       "kmeans-static.json" ["--tuning=k10-manual.fut.tuning"]))
+    (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-static.fut"  "kmeans-static.json"))
   # Merge: find matching datasets
   (def result @{})
   (each [k v] (pairs dyn-data)

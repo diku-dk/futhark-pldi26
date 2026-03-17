@@ -46,7 +46,8 @@
   (when cwd (os/cd original))
   [elapsed (= exit-code 0)])
 
-(defn run-output [cmd &opt cwd]
+(defn run-output* [cmd &opt cwd]
+  # Like run-output but returns [output exit-code] without exiting on failure.
   (def original (os/cwd))
   (when cwd (os/cd cwd))
   (def tmpfile "/tmp/janet-cmd-output.txt")
@@ -54,7 +55,12 @@
   (def exit-code (os/execute ["sh" "-c" shell-str] :p))
   (def result (slurp tmpfile))
   (when cwd (os/cd original))
+  [result exit-code])
+
+(defn run-output [cmd &opt cwd]
+  (def [result exit-code] (run-output* cmd cwd))
   (unless (= exit-code 0)
+    (def shell-str (string/join (map string cmd) " "))
     (eprintf "ERROR: command failed: %s\n" shell-str)
     (eprintf "%s\n" result)
     (os/exit exit-code))
