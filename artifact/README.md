@@ -3,13 +3,33 @@
 This artifact reproduces Fig. 14 from the paper (modulo hardware-dependent timing
 values) and provides the Dafny programs discussed in Section 2.
 
+## Requirements
+
+- [Docker](https://docs.docker.com/get-docker/)
+- The artifact image `propprop.tar.gz`
+- A system capable of running an x86-64 Docker image
+
+## Hardware
+
+Hardware used by the authors:
+
+**Verification table (left table of Fig. 14):**
+- macOS 26.3
+- Apple M4 CPU
+- 16 GB memory
+
+**Performance table (right table of Fig. 14):**
+- Linux
+- 2× Intel Xeon 4410Y CPU
+- NVIDIA A100 GPU
+
+Expected memory requirement for running the artifact is less than a few GB.
+
 ---
 
 ## Getting Started Guide
 
 The full evaluation completes in **under 10 minutes** on a modern NVIDIA GPU.
-Requirements: [Docker](https://docs.docker.com/get-docker/) and the artifact
-image `propprop.tar.gz`.
 
 Load and start the container:
 
