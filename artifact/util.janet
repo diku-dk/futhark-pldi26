@@ -66,6 +66,13 @@
     (os/exit exit-code))
   result)
 
+(defn check-unknown-args [rest known-flags]
+  (each arg rest
+    (when (string/has-prefix? "--" arg)
+      (unless (find-index |(= $ arg) known-flags)
+        (eprintf "Error: unknown flag: %s\n" arg)
+        (os/exit 1)))))
+
 (defn mk-timestamp []
   (def t (os/date))
   (string/format "%04d%02d%02d-%02d%02d%02d"

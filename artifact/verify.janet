@@ -77,6 +77,8 @@
   (when (find-index |(= $ "--help") rest)
     (print usage)
     (os/exit 0))
+  (util/check-unknown-args rest ["--futhark-dir" "--output" "--runs" "--backend" "--help"])
+
   (def futhark-dir (or (util/get-arg "--futhark-dir" rest false) "futhark-PropProp"))
   (def output-path (or (util/get-arg "--output"      rest false) "."))
   (def n           (scan-number (or (util/get-arg "--runs"    rest false) "1")))

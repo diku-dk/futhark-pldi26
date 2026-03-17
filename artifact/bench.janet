@@ -34,6 +34,10 @@
     (print usage)
     (os/exit 0))
 
+  (util/check-unknown-args rest
+    ["--futhark-dir" "--perf-dir" "--data" "--results" "--runs" "--backend"
+     "--skip-verify" "--skip-perf" "--skip-kmeans" "--skip-partition" "--pdf" "--help"])
+
   (def futhark-dir   (or (util/get-arg "--futhark-dir" rest false) "futhark-PropProp"))
   (def perf-dir      (or (util/get-arg "--perf-dir" rest false) "perf-tests"))
   (def data-path     (or (util/get-arg "--data"    rest false) "data"))

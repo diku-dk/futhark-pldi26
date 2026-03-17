@@ -124,7 +124,6 @@ Requirements:
 
 * [Janet](https://janet-lang.org/) (the scripting language)
 * `futhark` on `PATH` (the modified compiler from `futhark-PropProp/`)
-* Python 3 (for JSON parsing in `perf.janet`)
 * `latexmk` (optional, for PDF output)
 * NVIDIA GPU + CUDA toolkit (optional, for performance benchmarks)
 

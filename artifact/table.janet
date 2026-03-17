@@ -261,6 +261,8 @@
     (print usage)
     (os/exit 0))
 
+  (util/check-unknown-args rest ["--verify" "--perf" "--output" "--pdf" "--help"])
+
   (def verify-arg (util/get-arg "--verify" rest false))
   (def perf-arg   (util/get-arg "--perf"   rest false))
 

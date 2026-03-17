@@ -19,38 +19,51 @@
     --help:           Print this usage information.
   ``)
 
-(defn parse-bench-json [json-file]
-  # Parse futhark bench JSON output using Python.
-  # Returns @{"entry:dataset" mean-runtime-us}
-  (def py
-    (string
-      "import json, statistics\n"
-      "data = json.load(open('" json-file "'))\n"
-      "for prog, info in data.items():\n"
-      "    for ds, vals in info['datasets'].items():\n"
-      "        rts = vals.get('runtimes', [])\n"
-      "        if rts:\n"
-      "            print(prog + '\\t' + ds + '\\t' + str(statistics.mean(rts)))\n"))
-  (def output (util/run-output ["python3" "-c" py]))
+(defn parse-bench-output [fut-name output]
+  # Parse futhark bench text output. Returns @{"entrypoint\tdataset" mean-us}
+  # futhark bench prints lines like:
+  #   progname.fut:entrypoint:        <- entry point header
+  #   progname.fut (using x.tuning):  <- single-entry header
+  #   dataset:     12345μs (95% CI: [...])  <- result line
   (def result @{})
-  (each line (string/split "\n" (string/trimr output))
-    (unless (empty? line)
-      (def parts (string/split "\t" line))
-      (when (= (length parts) 3)
-        (put result (string (parts 0) "\t" (parts 1)) (scan-number (parts 2))))))
+  (var cur-entry fut-name)
+  (each line (string/split "\n" output)
+    (def trimmed (string/trim line))
+    (cond
+      (empty? trimmed) nil
+
+      # Entry point / program header: ends with ":", contains ".fut", no μs
+      (and (string/has-suffix? ":" trimmed)
+           (string/find ".fut" trimmed)
+           (not (string/find "μs" trimmed)))
+      (let [base (if (string/find " (" trimmed)
+                   (string/slice trimmed 0 (string/find " (" trimmed))
+                   (string/slice trimmed 0 -2))]
+        (set cur-entry (string/trim base)))
+
+      # Dataset result line: contains μs
+      (string/find "μs" trimmed)
+      (let [colon-idx (string/find ":" trimmed)]
+        (when colon-idx
+          (let [ds      (string/trim (string/slice trimmed 0 colon-idx))
+                after   (string/trim (string/slice trimmed (+ colon-idx 1)))
+                mus-idx (string/find "μs" after)]
+            (when mus-idx
+              (let [toks (filter (complement empty?)
+                                 (string/split " " (string/trim (string/slice after 0 mus-idx))))
+                    num  (scan-number (last toks))]
+                (when num
+                  (put result (string cur-entry "\t" ds) num)))))))))
   result)
 
-(defn run-futhark-bench [perf-dir subdir fut-file json-file]
+(defn run-futhark-bench [perf-dir subdir fut-file]
   (def full-dir (string perf-dir "/" subdir))
-  (def json-path (string full-dir "/" json-file))
   (def [out exit-code]
-    (util/run-output* ["futhark" "bench" "--backend=cuda"
-                       (string "--json=" json-path) fut-file]
-                      full-dir))
+    (util/run-output* ["futhark" "bench" "--backend=cuda" fut-file] full-dir))
   (when (not= exit-code 0)
     (eprintf "ERROR: futhark bench failed for %s:\n%s\n" fut-file out)
     (os/exit exit-code))
-  (parse-bench-json json-path))
+  (parse-bench-output fut-file out))
 
 (defn bench-kmeans [perf-dir]
   # futhark bench looks for <program>.tuning automatically; copy the shared
@@ -60,36 +73,29 @@
              "cp -f k10-manual.fut.tuning k10-manual-dynamic.fut.tuning 2>/dev/null; cp -f k10-manual.fut.tuning k10-manual-static.fut.tuning 2>/dev/null; true"]
             kmeans-dir)
   (printf "Benchmarking kmeans (dynamic)...\n")
-  (def dyn-data
-    (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-dynamic.fut" "kmeans-dynamic.json"))
+  (def dyn-data    (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-dynamic.fut"))
   (printf "Benchmarking kmeans (static)...\n")
-  (def static-data
-    (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-static.fut"  "kmeans-static.json"))
+  (def static-data (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-static.fut"))
   # Merge: find matching datasets
   (def result @{})
   (each [k v] (pairs dyn-data)
-    (def parts (string/split "\t" k))
-    (def ds (parts 1))
+    (def ds (get (string/split "\t" k) 1))
     (def ds-short
       (cond
         (string/find "movielens" ds) "movielens"
         (string/find "nytimes"   ds) "nytimes"
         (string/find "scrna"     ds) "scrna"
         ds))
-    # Find matching static entry by comparing dataset component
     (var static-mean nil)
     (each [sk sv] (pairs static-data)
-      (def sk-parts (string/split "\t" sk))
-      (when (= ds (get sk-parts 1))
+      (when (= ds (get (string/split "\t" sk) 1))
         (set static-mean sv)))
     (put result ds-short @{:dyn v :static static-mean}))
   result)
 
 (defn bench-partition2 [perf-dir]
   (printf "Benchmarking partition2...\n")
-  (def data
-    (run-futhark-bench perf-dir "partition2" "partition2.fut" "partition2.json"))
-  # Extract entries by variant and dataset size
+  (def data (run-futhark-bench perf-dir "partition2" "partition2.fut"))
   (def result @{})
   (each [k v] (pairs data)
     (def parts (string/split "\t" k))
@@ -97,9 +103,9 @@
     (def ds   (parts 1))
     (def variant
       (cond
-        (string/find "dynamicChecked"  prog) :dyn
-        (string/find "staticChecked"   prog) :static
-        (string/find "staticWithOpt"   prog) :static-opt
+        (string/find "dynamicChecked" prog) :dyn
+        (string/find "staticChecked"  prog) :static
+        (string/find "staticWithOpt"  prog) :static-opt
         nil))
     (def size
       (cond
@@ -124,6 +130,8 @@
   (when (find-index |(= $ "--help") rest)
     (print usage)
     (os/exit 0))
+  (util/check-unknown-args rest ["--perf-dir" "--output" "--skip-kmeans" "--skip-partition" "--help"])
+
   (def perf-dir
     (os/realpath
       (or (util/get-arg "--perf-dir" rest false)
@@ -132,6 +140,6 @@
   (def skip-kmeans?    (find-index |(= $ "--skip-kmeans")    rest))
   (def skip-partition? (find-index |(= $ "--skip-partition") rest))
 
-  (def kmeans    (if skip-kmeans?    @{} (bench-kmeans    perf-dir)))
-  (def partition (if skip-partition? @{} (bench-partition2 perf-dir)))
+  (def kmeans    (if skip-kmeans?    @{} (bench-kmeans     perf-dir)))
+  (def partition (if skip-partition? @{} (bench-partition2  perf-dir)))
   (save-results kmeans partition output-path))

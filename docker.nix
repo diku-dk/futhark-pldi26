@@ -42,7 +42,6 @@ let
       bashInteractive
       dafny
       janet
-      python3
 
       # Dependencies
       glibc
