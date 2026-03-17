@@ -37,10 +37,6 @@ All scripts accept `--help` for full options. The full evaluation runs
 `futhark verify` on all 10 programs and (with a GPU) the performance benchmarks,
 producing `results/fig14-<timestamp>.{md,tex,pdf}` (see [Output](#output)).
 
-> **Note:** If `nvcc` is not found, the `% Compile` column will differ from the
-> paper (the `c` backend is used as a fallback instead of `cuda`). The Safe
-> column and check times are unaffected. Use `--backend=opencl` as an alternative.
-
 ### OpenCL backend (AMD GPU, untested)
 
 The artifact supports the `opencl` backend, which works with both AMD and NVIDIA
