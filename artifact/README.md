@@ -3,8 +3,9 @@
 This artifact reproduces Fig. 14 from the paper (modulo hardware-dependent timing
 values) and provides the Dafny programs discussed in Section 2.
 
-> **Note:** The artifact scripts (`*.janet`) and Docker container (`docker.nix`)
-> were developed with assistance from Anthropic's Claude.
+> **Note:** The artifact scripts (`*.janet`), this README, and the Docker
+> container (`docker.nix`) were developed with assistance from Anthropic's
+> Claude.
 
 ## Requirements
 
