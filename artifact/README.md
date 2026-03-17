@@ -5,25 +5,26 @@ values) and provides the Dafny programs discussed in Section 2.
 
 ## Requirements
 
+### Software
+
 - [Docker](https://docs.docker.com/get-docker/)
 - The artifact image `propprop.tar.gz`
+
+### Hardware
+
 - A system capable of running an x86-64 Docker image
+- For the verification table from Fig. 14: any machine (no GPU required)
+- For the performance table from Fig. 14: an NVIDIA GPU (CUDA) or AMD GPU
+  (OpenCL)
+- Expected memory requirement: less than a few GB
 
-## Hardware
-
-Hardware used by the authors:
-
-**Verification table (left table of Fig. 14):**
-- macOS 26.3
-- Apple M4 CPU
-- 16 GB memory
-
-**Performance table (right table of Fig. 14):**
-- Linux
-- 2× Intel Xeon 4410Y CPU
-- NVIDIA A100 GPU
-
-Expected memory requirement for running the artifact is less than a few GB.
+> **Authors' hardware:**
+>
+> Verification table (left table of Fig. 14):
+> macOS 26.3, Apple M4 CPU, 16 GB memory
+>
+> Performance table (right table of Fig. 14):
+> Linux, 2× Intel Xeon 4410Y CPU, NVIDIA A100 GPU
 
 ---
 
