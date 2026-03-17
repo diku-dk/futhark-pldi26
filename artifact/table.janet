@@ -44,19 +44,23 @@
 # ------------------------------------------------------------------------------
 (def program-order
   [:max-match :mis :fft :primes :kmeans-ker
-   :partition :partition3 :seg-part :filter :filter-irreg])
+   :partition :partition3 :seg-part :filter :filter-irreg :quickhull :bfs :lavaMD :srad])
 
 (def program-meta
-  {:max-match    {:md "max_match"     :tex-name `$\mathsf{max\_match}$`     :properties "Range, Equiv, Inj, FP"  :properties-tex `Range,~Equiv,~Inj,~FP` :num-s 6 :num-a 14}
-   :mis          {:md "MIS"           :tex-name `$\mathsf{MIS}$`            :properties "Range"                  :properties-tex `Range`                  :num-s 3 :num-a 35}
-   :fft          {:md "FFT"           :tex-name `$\mathsf{FFT}$`            :properties "Inj"                    :properties-tex `Inj`                    :num-s 1 :num-a 1}
-   :primes       {:md "primes"        :tex-name `$\mathsf{primes}$`         :properties "Range, FP"              :properties-tex `Range,~FP`              :num-s 2 :num-a 12}
-   :kmeans-ker   {:md "kmeans_ker"    :tex-name `$\mathsf{kmeans\_ker}$`    :properties "Range"                  :properties-tex `Range`                  :num-s 0 :num-a 3}
-   :partition    {:md "partition"     :tex-name `$\mathsf{partition}$`      :properties "Equiv, FP"              :properties-tex `Equiv,~FP`              :num-s 1 :num-a 1}
-   :partition3   {:md "partition3"    :tex-name `$\mathsf{partition3}$`     :properties "Equiv, FP"              :properties-tex `Equiv,~FP`              :num-s 1 :num-a 2}
-   :seg-part     {:md "seg_partition" :tex-name `$\mathsf{seg\_partition}$` :properties "Range, Equiv, FP"       :properties-tex `Range,~Equiv,~FP`       :num-s 1 :num-a 3}
-   :filter       {:md "filter"        :tex-name `$\mathsf{filter}$`         :properties "Equiv, FP"              :properties-tex `Equiv,~FP`              :num-s 1 :num-a 3}
-   :filter-irreg {:md "filter_irreg"  :tex-name `$\mathsf{filter\_irreg}$`  :properties "Range, Equiv, InvFP"    :properties-tex `Range,~Equiv,~InvFP`    :num-s 1 :num-a 3}})
+  {:max-match    {:md "max_match"     :tex-name `$\mathsf{max\_match}$`     :properties "Range, Equiv, Inj, FP" :properties-tex `Range,~Equiv,~Inj,~FP` :num-s 6 :num-a 14}
+   :mis          {:md "MIS"           :tex-name `$\mathsf{MIS}$`            :properties "Range"                 :properties-tex `Range`                  :num-s 3 :num-a 35}
+   :fft          {:md "FFT"           :tex-name `$\mathsf{FFT}$`            :properties "Inj"                   :properties-tex `Inj`                    :num-s 1 :num-a 1}
+   :primes       {:md "primes"        :tex-name `$\mathsf{primes}$`         :properties "Range, FP"             :properties-tex `Range,~FP`              :num-s 2 :num-a 12}
+   :kmeans-ker   {:md "kmeans_ker"    :tex-name `$\mathsf{kmeans\_ker}$`    :properties "Range"                 :properties-tex `Range`                  :num-s 0 :num-a 3}
+   :partition    {:md "partition"     :tex-name `$\mathsf{partition}$`      :properties "Equiv, FP"             :properties-tex `Equiv,~FP`              :num-s 1 :num-a 1}
+   :partition3   {:md "partition3"    :tex-name `$\mathsf{partition3}$`     :properties "Equiv, FP"             :properties-tex `Equiv,~FP`              :num-s 1 :num-a 2}
+   :seg-part     {:md "seg_partition" :tex-name `$\mathsf{seg\_partition}$` :properties "Range, Equiv, FP"      :properties-tex `Range,~Equiv,~FP`       :num-s 1 :num-a 3}
+   :filter       {:md "filter"        :tex-name `$\mathsf{filter}$`         :properties "Equiv, FP"             :properties-tex `Equiv,~FP`              :num-s 1 :num-a 3}
+   :filter-irreg {:md "filter_irreg"  :tex-name `$\mathsf{filter\_irreg}$`  :properties "Range, Equiv, InvFP"   :properties-tex `Range,~Equiv,~InvFP`    :num-s 1 :num-a 3}
+   :quickhull    {:md "quickhull"     :tex-name `$\mathsf{quickhull}$`      :properties "Range,InvFP,FP"        :properties-tex `Range,~InvFP,~FP,`      :num-s 8 :num-a 21}
+   :bfs          {:md "bfs"           :tex-name `$\mathsf{bfs}$`            :properties "Range,FP,Inj,Mono"     :properties-tex `Range,~Mono,~Inj,~FP`   :num-s 1 :num-a 26}
+   :lavaMD       {:md "lavaMD"        :tex-name `$\mathsf{lavaMD}$`         :properties "Range"                 :properties-tex `Range`                  :num-s 0 :num-a 6}
+   :srad         {:md "srad"          :tex-name `$\mathsf{srad}$`           :properties "Range"                 :properties-tex `Range`                  :num-s 0 :num-a 12}})
 
 # Formatting helpers
 # ------------------------------------------------------------------------------
