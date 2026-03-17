@@ -1,7 +1,8 @@
 # Artifact for *Verifying Array Properties in Pure Data-Parallel Programs*
 
-This artifact reproduces Fig. 14 from the paper (modulo hardware-dependent timing
-values) and provides the Dafny programs discussed in Section 2.
+This artifact includes an implementation of PropProp in the Futhark compiler,
+reproduces Fig. 14 from the paper (modulo hardware-dependent timing values) and
+provides the Dafny programs discussed in Section 2.
 
 > **Note:** The artifact scripts (`*.janet`), this README, and the Docker
 > container (`docker.nix`) were developed with assistance from Anthropic's
@@ -155,6 +156,6 @@ Requirements:
 * `table.janet`: Generates Fig. 14 as Markdown, LaTeX, and PDF.
 * `dafny.janet`: Runs Dafny verification for Section 2 programs.
 * `util.janet`: Shared utility functions.
-* `futhark-PropProp/`: The modified Futhark compiler (Haskell/Cabal project).
+* `futhark-PropProp/`: The modified Futhark compiler (Haskell/Cabal project). See folders `futhark-PropProp/src/Futhark/SoP` and `futhark-PropProp/src/Futhark/Analysis/Properties`.
 * `perf-tests/`: Futhark benchmark programs for performance evaluation.
 * `dafny/`: Dafny programs for Section 2.
