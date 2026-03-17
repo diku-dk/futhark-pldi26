@@ -207,7 +207,6 @@
   (string/join
     [`\begin{figure}`
      `\footnotesize`
-     `\begin{minipage}[t]{0.66\linewidth}`
      `\begin{tabular}{lrrrrrr}`
      `\vspace{-0.5em}`
      `                       &                        &               &              &              &                & \textsc{\% of}\\`
@@ -217,7 +216,6 @@
      `\hline`
      ;verify-rows
      `\end{tabular}`
-     `\end{minipage}\begin{minipage}[t]{0.34\linewidth}`
      `\begin{tabular}{lrrr}`
      `\vspace{-0.3em}`
      `\textsc{Program}     & \textsc{Dyn.}   & \multicolumn{2}{c}{\textsc{Speedup}}  \\`
@@ -228,14 +226,13 @@
      `  $\mathsf{partition2}$ & \\`
      ;part-rows
      `\end{tabular}`
-     `\end{minipage}`
      `\caption{`
      `  Left:`
      `  Summary of evaluated programs.`
      `  FP abbreviates FiltPart.`
      `  \textsc{Safe} indicates whether all indexing and scatters are verified.`
      `  \textsc{\#S} and \textsc{\#A} denote scatters and annotations.`
-     `  Check time measures \system's runtime (Apple M4 chip).`
+     `  Check time measures PropProp's runtime (Apple M4 chip).`
      `  Right: NVIDIA A100 performance with dynamic checks (\textsc{Dyn.}) as baseline.`
      `  \textsc{Static} shows speedup over dynamic checks.`
      `  \textsc{+Opt} additionally removes scattered array initialization (speedup over \textsc{Static}).`
