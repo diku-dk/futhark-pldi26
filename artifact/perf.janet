@@ -57,9 +57,7 @@
   # tuning file to match each variant's expected name.
   (def kmeans-dir (string perf-dir "/kmeans-sparse"))
   (util/run ["sh" "-c"
-             "cp -f k10-manual.fut.tuning k10-manual-dynamic.fut.tuning 2>/dev/null; \
-              cp -f k10-manual.fut.tuning k10-manual-static.fut.tuning  2>/dev/null; \
-              true"]
+             "cp -f k10-manual.fut.tuning k10-manual-dynamic.fut.tuning 2>/dev/null; cp -f k10-manual.fut.tuning k10-manual-static.fut.tuning 2>/dev/null; true"]
             kmeans-dir)
   (printf "Benchmarking kmeans (dynamic)...\n")
   (def dyn-data

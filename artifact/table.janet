@@ -37,27 +37,26 @@
     (latest-jdn path prefix)
     path))
 
-# Static metadata for Fig 14 (left table).
-# Properties abbreviations: FP=FiltPart, InvFP=FiltPartInv, Inj=Injective,
-#   Mono=Monotonic, FP2=FiltPart2, InvFP2=FiltPartInv2
+# Static metadata for the evaluation table.
+# Properties: FP = FiltPart, InvFP = FiltPartInv, Inj = Injective, Equiv = Equiv
 # #S = number of scatter operations; #A = number of non-trivial annotations.
-# All programs are Safe (they all verify successfully).
+# :tex-name is used in LaTeX rows; :properties-tex uses ~ for non-breaking spaces.
 # ------------------------------------------------------------------------------
 (def program-order
   [:max-match :mis :fft :primes :kmeans-ker
    :partition :partition3 :seg-part :filter :filter-irreg])
 
 (def program-meta
-  {:max-match    {:md "max_match"      :tex "max\\_match"      :properties "Inj, Range, FP, InvFP" :num-s 6  :num-a 18}
-   :mis          {:md "MIS"            :tex "MIS"              :properties "Range, Mono"            :num-s 4  :num-a 20}
-   :fft          {:md "FFT"            :tex "FFT"              :properties "Range"                  :num-s 1  :num-a 5}
-   :primes       {:md "primes"         :tex "primes"           :properties "Range"                  :num-s 3  :num-a 18}
-   :kmeans-ker   {:md "kmeans_ker"     :tex "kmeans\\_ker"     :properties "Range"                  :num-s 0  :num-a 7}
-   :partition    {:md "partition"      :tex "partition"        :properties "FP"                     :num-s 1  :num-a 1}
-   :partition3   {:md "partition3"     :tex "partition3"       :properties "FP, InvFP"              :num-s 1  :num-a 2}
-   :seg-part     {:md "seg_partition"  :tex "seg\\_partition"  :properties "FP, InvFP, Range"       :num-s 2  :num-a 10}
-   :filter       {:md "filter"         :tex "filter"           :properties "FP, InvFP"              :num-s 1  :num-a 2}
-   :filter-irreg {:md "filter_irreg"   :tex "filter\\_irreg"   :properties "FP, InvFP, Range"       :num-s 2  :num-a 9}})
+  {:max-match    {:md "max_match"     :tex-name `$\mathsf{max\_match}$`     :properties "Range, Equiv, Inj, FP"  :properties-tex `Range,~Equiv,~Inj,~FP` :num-s 6 :num-a 14}
+   :mis          {:md "MIS"           :tex-name `$\mathsf{MIS}$`            :properties "Range"                  :properties-tex `Range`                  :num-s 3 :num-a 35}
+   :fft          {:md "FFT"           :tex-name `$\mathsf{FFT}$`            :properties "Inj"                    :properties-tex `Inj`                    :num-s 1 :num-a 1}
+   :primes       {:md "primes"        :tex-name `$\mathsf{primes}$`         :properties "Range, FP"              :properties-tex `Range,~FP`              :num-s 2 :num-a 12}
+   :kmeans-ker   {:md "kmeans_ker"    :tex-name `$\mathsf{kmeans\_ker}$`    :properties "Range"                  :properties-tex `Range`                  :num-s 0 :num-a 3}
+   :partition    {:md "partition"     :tex-name `$\mathsf{partition}$`      :properties "Equiv, FP"              :properties-tex `Equiv,~FP`              :num-s 1 :num-a 1}
+   :partition3   {:md "partition3"    :tex-name `$\mathsf{partition3}$`     :properties "Equiv, FP"              :properties-tex `Equiv,~FP`              :num-s 1 :num-a 2}
+   :seg-part     {:md "seg_partition" :tex-name `$\mathsf{seg\_partition}$` :properties "Range, Equiv, FP"       :properties-tex `Range,~Equiv,~FP`       :num-s 1 :num-a 3}
+   :filter       {:md "filter"        :tex-name `$\mathsf{filter}$`         :properties "Equiv, FP"              :properties-tex `Equiv,~FP`              :num-s 1 :num-a 3}
+   :filter-irreg {:md "filter_irreg"  :tex-name `$\mathsf{filter\_irreg}$`  :properties "Range, Equiv, InvFP"    :properties-tex `Range,~Equiv,~InvFP`    :num-s 1 :num-a 3}})
 
 # Formatting helpers
 # ------------------------------------------------------------------------------
@@ -67,15 +66,29 @@
 (defn fmt-pct [n]
   (if n (string/format "%d%%" (math/round n)) "—"))
 
+(defn fmt-pct-tex [n]
+  (if n (string/format "%d\\%%" (math/round n)) "---"))
+
 (defn fmt-ms [us]
-  # Convert microseconds to milliseconds, round to nearest integer
   (if us (string/format "%dms" (math/round (/ us 1000))) "—"))
 
+(defn fmt-ms-tex [us]
+  (if us (string/format "%d" (math/round (/ us 1000))) "---"))
+
 (defn fmt-speedup [a b]
-  # a/b speedup, e.g. dyn/static
   (if (and a b (> b 0))
-    (string/format "%.1f\\times" (/ a b))
+    (string/format "%.1f×" (/ a b))
     "—"))
+
+(defn fmt-speedup-tex [a b]
+  (if (and a b (> b 0))
+    (string/format "$%.1f\\times$" (/ a b))
+    "---"))
+
+(defn fmt-speedup-opt-tex [a b]
+  (if (and a b (> b 0))
+    (string/format "$%.2f\\times$" (/ a b))
+    "---"))
 
 # Markdown rendering
 # ------------------------------------------------------------------------------
@@ -151,81 +164,92 @@
 
 # LaTeX rendering
 # ------------------------------------------------------------------------------
-(defn render-latex-verify [verify]
+(defn render-latex-figure [verify perf]
   (defn v [key field] (get-in verify [key field]))
-  (def rows
+  (def kmeans    (get perf :kmeans    @{}))
+  (def partition (get perf :partition2 @{}))
+
+  # Left table rows
+  (def verify-rows
     (map (fn [key]
            (def m (program-meta key))
            (string/format "  %s & %s & %s & %d & %d & %s & %s \\\\"
-             (m :tex)
+             (m :tex-name)
+             (m :properties-tex)
              (if (get-in verify [key :safe]) `$\checkmark$` `$\times$`)
-             (m :properties)
              (m :num-s)
              (m :num-a)
              (fmt-secs (v key :prop-time))
-             (fmt-pct  (v key :pct))))
+             (fmt-pct-tex (v key :pct))))
          program-order))
-  (string/join
-    [`\begin{table}[t]`
-     `  \small\centering`
-     `  \caption{Evaluated programs. FP = FiltPart, InvFP = FiltPartInv, Inj = Injective, Mono = Monotonic.}`
-     `  \begin{tabular}{l l c r r r r}`
-     `  \toprule`
-     `  Program & Properties & Safe & \#S & \#A & Check time & \% Compile \\`
-     `  \midrule`
-     ;rows
-     `  \bottomrule`
-     `  \end{tabular}`
-     `  \label{tab:verify}`
-     `\end{table}`]
-    "\n"))
 
-(defn render-latex-perf [perf]
-  (def kmeans    (get perf :kmeans    @{}))
-  (def partition (get perf :partition2 @{}))
+  # Right table rows: kmeans
   (def kmeans-rows
     (map (fn [ds]
            (def entry (get kmeans ds @{}))
-           (string/format "  kmeans\\_ker & %s & %s & %s & --- \\\\"
+           (string/format `  \hspace{0.5em} %s & %s & %s \\`
              ds
-             (fmt-ms (get entry :dyn))
-             (fmt-speedup (get entry :dyn) (get entry :static))))
+             (fmt-ms-tex (get entry :dyn))
+             (fmt-speedup-tex (get entry :dyn) (get entry :static))))
          ["movielens" "nytimes" "scrna"]))
+
+  # Right table rows: partition2
   (def part-rows
     (map (fn [sz]
            (def entry (get partition sz @{}))
-           (string/format "  partition2 & %s & %s & %s & %s \\\\"
+           (string/format `  \hspace{0.5em} %s & %s & %s & %s \\`
              sz
-             (fmt-ms (get entry :dyn))
-             (fmt-speedup (get entry :dyn) (get entry :static))
-             (fmt-speedup (get entry :static) (get entry :static-opt))))
+             (fmt-ms-tex (get entry :dyn))
+             (fmt-speedup-tex (get entry :dyn) (get entry :static))
+             (fmt-speedup-opt-tex (get entry :static) (get entry :static-opt))))
          ["50M" "100M" "200M"]))
+
   (string/join
-    [`\begin{table}[t]`
-     `  \small\centering`
-     `  \caption{Performance: dynamic vs.\ static verification. Speedup = dyn/static. +Opt = static/static+opt.}`
-     `  \begin{tabular}{l l r r r}`
-     `  \toprule`
-     `  Program & Data & Dyn.\ (ms) & Speedup (static) & +Opt \\`
-     `  \midrule`
+    [`\begin{figure}`
+     `\footnotesize`
+     `\begin{minipage}[t]{0.66\linewidth}`
+     `\begin{tabular}{lrrrrrr}`
+     `\vspace{-0.5em}`
+     `                       &                        &               &              &              &                & \textsc{\% of}\\`
+     `\vspace{-0.5em}`
+     `                       & \textsc{Properties \&} &               &              &              & \textsc{Check} & \textsc{Compile}\\`
+     `\textsc{Program}       & \textsc{annotations}   & \textsc{Safe} & \textsc{\#S} & \textsc{\#A} & \textsc{time}  & \textsc{time}\\`
+     `\hline`
+     ;verify-rows
+     `\end{tabular}`
+     `\end{minipage}\begin{minipage}[t]{0.34\linewidth}`
+     `\begin{tabular}{lrrr}`
+     `\vspace{-0.3em}`
+     `\textsc{Program}     & \textsc{Dyn.}   & \multicolumn{2}{c}{\textsc{Speedup}}  \\`
+     `\textsc{\& Data}     & \textsc{($ms$)} & \textsc{Static} & $+$\textsc{Opt}\\`
+     `\hline`
+     `  $\mathsf{kmeans\_ker}$ & \\`
      ;kmeans-rows
-     `  \midrule`
+     `  $\mathsf{partition2}$ & \\`
      ;part-rows
-     `  \bottomrule`
-     `  \end{tabular}`
-     `  \label{tab:perf}`
-     `\end{table}`]
+     `\end{tabular}`
+     `\end{minipage}`
+     `\caption{`
+     `  Left:`
+     `  Summary of evaluated programs.`
+     `  FP abbreviates FiltPart.`
+     `  \textsc{Safe} indicates whether all indexing and scatters are verified.`
+     `  \textsc{\#S} and \textsc{\#A} denote scatters and annotations.`
+     `  Check time measures \system's runtime (Apple M4 chip).`
+     `  Right: NVIDIA A100 performance with dynamic checks (\textsc{Dyn.}) as baseline.`
+     `  \textsc{Static} shows speedup over dynamic checks.`
+     `  \textsc{+Opt} additionally removes scattered array initialization (speedup over \textsc{Static}).`
+     `}`
+     `\label{tab:eval}`
+     `\end{figure}`]
     "\n"))
 
 (defn render-latex-document [verify perf]
   (string/join
     [`\documentclass{article}`
-     `\usepackage{booktabs}`
      `\usepackage{amssymb}`
      `\begin{document}`
-     (render-latex-verify verify)
-     ""
-     (render-latex-perf perf)
+     (render-latex-figure verify perf)
      `\end{document}`]
     "\n"))
 
