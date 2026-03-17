@@ -21,7 +21,8 @@ provides the Dafny programs discussed in Section 2.
 - For the verification table from Fig. 14: any machine (no GPU required)
 - For the performance table from Fig. 14: an NVIDIA GPU (CUDA) or AMD GPU
   (OpenCL)
-- Expected memory requirement: less than a few GB
+- Expected RAM requirement: a few GB
+- Expected GPU memory requirement: about 8GB.
 
 > **Authors' hardware:**
 >
@@ -29,7 +30,7 @@ provides the Dafny programs discussed in Section 2.
 > macOS 26.3, Apple M4 CPU, 16 GB memory
 >
 > Performance table (right table of Fig. 14):
-> Linux, 2× Intel Xeon 4410Y CPU, NVIDIA A100 GPU
+> Linux, AMD EPYC 7352 24-Core CPU, NVIDIA A100 GPU
 
 ---
 
