@@ -19,6 +19,15 @@ git submodule init
 git submodule update
 ```
 
+### Datasets
+
+The kmeans benchmark datasets (`movielens.in.gz`, `nytimes.in.gz`, `scrna.in.gz`)
+are stored in this repository via [Git LFS](https://git-lfs.com/) due to their
+size (~650 MB total). To fetch them after cloning:
+
+```
+git lfs pull
+```
 ### Building the Docker image
 
 Run

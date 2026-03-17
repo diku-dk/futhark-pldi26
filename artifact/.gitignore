@@ -1,2 +1,4 @@
 data
 reports
+!perf-tests/kmeans-sparse/data
+!perf-tests/kmeans-sparse/data/*.in.gz
