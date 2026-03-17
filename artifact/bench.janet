@@ -15,7 +15,7 @@
 
     --futhark-dir <path>: Path to futhark-PropProp directory (default: futhark-PropProp)
     --perf-dir <path>:    Path to perf-tests directory
-                          (default: futhark-PropProp/artifact_tools/perf-tests)
+                          (default: perf-tests)
     --data <path>:        Directory to save raw benchmark data (default: data)
     --results <path>:     Directory to save generated tables (default: results)
     --runs <n>:           Number of timed runs for verification benchmarks (default: 1)
@@ -35,8 +35,7 @@
     (os/exit 0))
 
   (def futhark-dir   (or (util/get-arg "--futhark-dir" rest false) "futhark-PropProp"))
-  (def default-perf  (string futhark-dir "/artifact_tools/perf-tests"))
-  (def perf-dir      (or (util/get-arg "--perf-dir" rest false) default-perf))
+  (def perf-dir      (or (util/get-arg "--perf-dir" rest false) "perf-tests"))
   (def data-path     (or (util/get-arg "--data"    rest false) "data"))
   (def results-path  (or (util/get-arg "--results" rest false) "results"))
   (def runs          (or (util/get-arg "--runs"    rest false) "1"))
@@ -48,7 +47,7 @@
                 "c")))))
   (def skip-verify?  (find-index |(= $ "--skip-verify")    rest))
   (def skip-perf?    (find-index |(= $ "--skip-perf")      rest))
-  (def skip-kmeans?  (find-index |(= $ "--skip-kmeans")    rest))
+  (var skip-kmeans?  (find-index |(= $ "--skip-kmeans")    rest))
   (def skip-part?    (find-index |(= $ "--skip-partition") rest))
   (def pdf?          (find-index |(= $ "--pdf")            rest))
 
@@ -63,6 +62,13 @@
                "--backend"     backend]))
 
   (unless skip-perf?
+    (def kmeans-data-dir (string perf-dir "/kmeans-sparse/data"))
+    (def kmeans-probe    (string kmeans-data-dir "/movielens.in.gz"))
+    (def has-kmeans-data? (os/stat kmeans-probe))
+    (when (and (not skip-kmeans?) (not has-kmeans-data?))
+      (eprint "Note: kmeans datasets not found in " kmeans-data-dir ".")
+      (eprint "      Skipping kmeans benchmarks. See artifact/README.md for how to add them.")
+      (set skip-kmeans? true))
     (def perf-cmd
       @["janet" "perf.janet"
         "--perf-dir" perf-dir

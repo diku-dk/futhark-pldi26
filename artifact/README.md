@@ -20,9 +20,14 @@ the performance numbers. Pass it through to the container with
 to produce only the left table.
 
 For kmeans, the sparse datasets (movielens, nytimes, scrna) must be present in
-`futhark-PropProp/artifact_tools/perf-tests/kmeans-sparse/data/`. See
-[futhark-ad](https://github.com/diku-dk/futhark-ad/tree/master/kmeans/kmeans-sparse/data)
-for the datasets. Use `--skip-kmeans` to skip them.
+`perf-tests/kmeans-sparse/data/`. They are **not
+bundled** in the Docker image due to file size (~650 MB total). If missing,
+`bench.janet` will automatically skip kmeans benchmarks with a notification.
+
+To add the datasets, copy `movielens.in.gz`, `nytimes.in.gz`, and `scrna.in.gz`
+(Futhark binary format, from
+[diku-dk/futhark-ad](https://github.com/diku-dk/futhark-ad/tree/master/kmeans/kmeans-sparse/data))
+into `perf-tests/kmeans-sparse/data/` and re-run.
 
 ## Getting started
 

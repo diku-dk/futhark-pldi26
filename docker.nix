@@ -12,19 +12,19 @@ let
     '';
   });
 
-  # Datasets are stored via Git LFS; media.githubusercontent.com serves LFS files directly.
-  kmeans-datasets = pkgs.runCommand "kmeans-datasets" { buildInputs = [ pkgs.wget ]; } ''
-    mkdir -p $out
-    wget -q "https://media.githubusercontent.com/media/diku-dk/futhark-ad-sc22/main/benchmarks/kmeans/sparse/data/movielens.in.gz" -O $out/movielens.in.gz
-    wget -q "https://media.githubusercontent.com/media/diku-dk/futhark-ad-sc22/main/benchmarks/kmeans/sparse/data/nytimes.in.gz"  -O $out/nytimes.in.gz
-    wget -q "https://media.githubusercontent.com/media/diku-dk/futhark-ad-sc22/main/benchmarks/kmeans/sparse/data/scrna.in.gz"    -O $out/scrna.in.gz
-  '';
+  # kmeans datasets (movielens.in.gz, nytimes.in.gz, scrna.in.gz) are large LFS files.
+  # They are NOT bundled here due to LFS bandwidth limits on the source repos.
+  # To add them, copy them into:
+  #   artifact/futhark-PropProp/artifact_tools/perf-tests/kmeans-sparse/data/
+  # and rebuild. Without them, kmeans benchmarks are automatically skipped.
+  # Dataset OIDs (sha256) from diku-dk/futhark-ad for reference:
+  #   movielens.in.gz: 616c57d0ae0c77ee89399571d9f5d022c6de766de0b72573996d6b42bcd2e91b (45MB)
+  #   nytimes.in.gz:   80e4a5fc8c2b8af17517076867ab584e87bf3d3de9f37a699bea7392661d3d33 (342MB)
+  #   scrna.in.gz:     e561aca13d2d663842b3c9b9818bafa47852b33fc65dfe69ca845f1a14e161cc (259MB)
 
   artifact = pkgs.runCommand "container-artifact-dir" {} ''
     mkdir -p $out
     cp -r ${./artifact} $out/artifact
-    mkdir -p $out/artifact/futhark-PropProp/artifact_tools/perf-tests/kmeans-sparse/data
-    cp ${kmeans-datasets}/*.in.gz $out/artifact/futhark-PropProp/artifact_tools/perf-tests/kmeans-sparse/data/
   '';
 
   cuda = pkgs.dockerTools.pullImage {

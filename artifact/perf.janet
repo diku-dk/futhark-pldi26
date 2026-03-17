@@ -3,7 +3,7 @@
 # Runs GPU performance benchmarks for Fig 14 (right table).
 # Requires futhark with a CUDA backend and appropriate datasets.
 # For kmeans, datasets must be present in perf-dir/kmeans-sparse/data/.
-# See artifact_tools/perf-tests/README for details.
+# See perf-tests/README for details.
 
 (import ./util)
 
@@ -12,7 +12,7 @@
   Usage: janet perf.janet [--perf-dir <path>] [--output <path>] [--skip-kmeans] [--skip-partition] [--help]
 
     --perf-dir:       Path to the perf-tests directory
-                      (default: futhark-PropProp/artifact_tools/perf-tests)
+                      (default: perf-tests)
     --output:         Directory to save results (default: current directory)
     --skip-kmeans:    Skip kmeans benchmarks (e.g. if datasets are unavailable)
     --skip-partition: Skip partition2 benchmarks
@@ -129,7 +129,7 @@
   (def perf-dir
     (os/realpath
       (or (util/get-arg "--perf-dir" rest false)
-          "futhark-PropProp/artifact_tools/perf-tests")))
+          "perf-tests")))
   (def output-path     (or (util/get-arg "--output" rest false) "."))
   (def skip-kmeans?    (find-index |(= $ "--skip-kmeans")    rest))
   (def skip-partition? (find-index |(= $ "--skip-partition") rest))
