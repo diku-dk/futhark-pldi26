@@ -35,6 +35,10 @@ let
     finalImageTag = "12.8.1-devel-ubuntu24.04";
   };
 
+  texlive-env = pkgs.texlive.combine {
+    inherit (pkgs.texlive) scheme-minimal amsfonts latexmk;
+  };
+
   imageEnv = pkgs.buildEnv {
     name = "image-env";
     paths = with pkgs; [
@@ -42,6 +46,8 @@ let
       bashInteractive
       dafny
       janet
+      bat
+      texlive-env
 
       # Dependencies
       glibc

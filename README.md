@@ -19,14 +19,6 @@ git submodule init
 git submodule update
 ```
 
-### Datasets
-
-The kmeans benchmark datasets are not included in this repository. To include
-them, download `movielens.in.gz`, `nytimes.in.gz`, and `scrna.in.gz` from
-[diku-dk/futhark-ad](https://github.com/diku-dk/futhark-ad/tree/master/kmeans/kmeans-sparse/data)
-and place them in `artifact/perf-tests/kmeans-sparse/data/`. Then rebuild the
-Docker image. Without the datasets, kmeans benchmarks are automatically skipped.
-
 ### Building the Docker image
 
 Run

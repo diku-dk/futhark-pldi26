@@ -283,13 +283,15 @@
   (def ts       (util/mk-timestamp))
   (def md-file  (string output-path "/fig14-" ts ".md"))
   (def tex-file (string output-path "/fig14-" ts ".tex"))
+  (def pdf-file (string output-path "/fig14-" ts ".pdf"))
 
   (util/mkdirp output-path)
   (spit md-file  (render-markdown verify perf))
   (spit tex-file (render-latex-document verify perf))
-  (printf "Results saved to %s and %s\n" md-file tex-file)
-
-  (when render-pdf?
-    (util/run ["latexmk" "-pdf" "-interaction=nonstopmode"
-               (string "-outdir=" output-path) tex-file])
-    (util/run ["latexmk" "-c" (string "-outdir=" output-path) tex-file])))
+  (if render-pdf?
+    (do
+      (util/run ["latexmk" "-pdf" "-interaction=nonstopmode"
+                 (string "-outdir=" output-path) tex-file])
+      (util/run ["latexmk" "-c" (string "-outdir=" output-path) tex-file])
+      (printf "Results saved to %s, %s, and %s\n" md-file tex-file pdf-file))
+    (printf "Results saved to %s and %s\n" md-file tex-file)))

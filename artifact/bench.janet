@@ -18,13 +18,11 @@
                           (default: perf-tests)
     --data <path>:        Directory to save raw benchmark data (default: data)
     --results <path>:     Directory to save generated tables (default: results)
-    --runs <n>:           Number of timed runs for verification benchmarks (default: 1)
-    --backend <b>:        Futhark backend for compile-time baseline (default: cuda)
+    --backend <b>:        Futhark backend for GPU and compile-time baseline: cuda or opencl (default: cuda)
     --skip-verify:        Skip verification timing benchmarks
     --skip-perf:          Skip GPU performance benchmarks (use if no GPU available)
     --skip-kmeans:        Skip kmeans GPU benchmarks (e.g. if datasets unavailable)
     --skip-partition:     Skip partition2 GPU benchmarks
-    --pdf:                Compile generated .tex to PDF (requires latexmk)
     --help:               Print this usage information.
   ``)
 
@@ -35,25 +33,18 @@
     (os/exit 0))
 
   (util/check-unknown-args rest
-    ["--futhark-dir" "--perf-dir" "--data" "--results" "--runs" "--backend"
-     "--skip-verify" "--skip-perf" "--skip-kmeans" "--skip-partition" "--pdf" "--help"])
+    ["--futhark-dir" "--perf-dir" "--data" "--results" "--backend"
+     "--skip-verify" "--skip-perf" "--skip-kmeans" "--skip-partition" "--help"])
 
   (def futhark-dir   (or (util/get-arg "--futhark-dir" rest false) "futhark-PropProp"))
   (def perf-dir      (or (util/get-arg "--perf-dir" rest false) "perf-tests"))
   (def data-path     (or (util/get-arg "--data"    rest false) "data"))
   (def results-path  (or (util/get-arg "--results" rest false) "results"))
-  (def runs          (or (util/get-arg "--runs"    rest false) "1"))
-  (def backend
-    (or (util/get-arg "--backend" rest false)
-        (let [has-cuda (= 0 (os/execute ["sh" "-c" "which nvcc > /dev/null 2>&1"] :p))]
-          (if has-cuda "cuda"
-            (do (eprint "Note: nvcc not found; using 'c' backend for compile-time baseline (% Compile will differ from paper).")
-                "c")))))
-  (def skip-verify?  (find-index |(= $ "--skip-verify")    rest))
-  (def skip-perf?    (find-index |(= $ "--skip-perf")      rest))
+  (def backend     (or (util/get-arg "--backend" rest false) "cuda"))
+  (def skip-verify?  (find-index |(= $ "--skip-verify") rest))
+  (def skip-perf?    (find-index |(= $ "--skip-perf")   rest))
   (var skip-kmeans?  (find-index |(= $ "--skip-kmeans")    rest))
   (def skip-part?    (find-index |(= $ "--skip-partition") rest))
-  (def pdf?          (find-index |(= $ "--pdf")            rest))
 
   (util/mkdirp data-path)
   (util/mkdirp results-path)
@@ -62,7 +53,6 @@
     (util/run ["janet" "verify.janet"
                "--futhark-dir" futhark-dir
                "--output"      data-path
-               "--runs"        runs
                "--backend"     backend]))
 
   (unless skip-perf?
@@ -76,15 +66,14 @@
     (def perf-cmd
       @["janet" "perf.janet"
         "--perf-dir" perf-dir
-        "--output"   data-path])
+        "--output"   data-path
+        "--backend"  backend])
     (when skip-kmeans?    (array/push perf-cmd "--skip-kmeans"))
     (when skip-part?      (array/push perf-cmd "--skip-partition"))
     (util/run perf-cmd))
 
-  (def table-cmd
-    @["janet" "table.janet"
-      "--verify" data-path
-      "--perf"   data-path
-      "--output" results-path])
-  (when pdf? (array/push table-cmd "--pdf"))
-  (util/run table-cmd))
+  (util/run ["janet" "table.janet"
+             "--verify" data-path
+             "--perf"   data-path
+             "--output" results-path
+             "--pdf"]))

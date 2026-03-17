@@ -9,11 +9,10 @@
 
 (def usage
   ``
-  Usage: janet verify.janet [--futhark-dir <path>] [--output <path>] [--runs <n>] [--backend <b>] [--help]
+  Usage: janet verify.janet [--futhark-dir <path>] [--output <path>] [--backend <b>] [--help]
 
     --futhark-dir: Path to the futhark-PropProp directory (default: futhark-PropProp)
     --output:      Directory to save results (default: current directory)
-    --runs:        Number of timed runs per program (default: 1)
     --backend:     Futhark backend for compile-time baseline (default: cuda)
     --help:        Print this usage information.
   ``)
@@ -34,41 +33,30 @@
 (defn mean [xs]
   (/ (reduce + 0 xs) (length xs)))
 
-(defn run-benchmarks [futhark-dir n backend]
+(defn run-benchmarks [futhark-dir backend]
   (def results @{})
   (each [key ann unann] programs
     (printf "Benchmarking %s ...\n" (string key))
-    (def verify-times @[])
-    (def check-times  @[])
-    (def cuda-times   @[])
-    (var safe true)
-    (repeat n
-      (def [vt ok] (util/time-run* ["futhark" "verify"  ann]   futhark-dir))
-      (array/push verify-times vt)
-      (unless ok (set safe false))
-      (array/push check-times  (util/time-run ["futhark" "check"  unann] futhark-dir))
-      (array/push cuda-times   (util/time-run ["futhark" backend  unann] futhark-dir)))
-    (def verify-avg (mean verify-times))
-    (def check-avg  (mean check-times))
-    (def cuda-avg   (mean cuda-times))
+    (def [vt ok] (util/time-run* ["futhark" "verify"  ann]   futhark-dir))
+    (def check-time  (util/time-run ["futhark" "check"  unann] futhark-dir))
+    (def cuda-time   (util/time-run ["futhark" backend  unann] futhark-dir))
     # Property-analysis time = verify - typecheck
-    (def prop-time  (max 0 (- verify-avg check-avg)))
-    (def total-time (+ prop-time cuda-avg))
+    (def prop-time  (max 0 (- vt check-time)))
+    (def total-time (+ prop-time cuda-time))
     (def pct        (if (> total-time 0) (* 100 (/ prop-time total-time)) 0))
     (put results key
-      @{:safe        safe
-        :verify-avg  verify-avg
-        :check-avg   check-avg
-        :cuda-avg    cuda-avg
+      @{:safe        ok
+        :verify-avg  vt
+        :check-avg   check-time
+        :cuda-avg    cuda-time
         :prop-time   prop-time
-        :cuda-time   cuda-avg
-        :pct         pct
-        :runs        n}))
+        :cuda-time   cuda-time
+        :pct         pct}))
   results)
 
-(defn save-results [results output-path n]
+(defn save-results [results output-path]
   (util/mkdirp output-path)
-  (def filename (string output-path "/verify-" (util/mk-timestamp) "-n" n ".jdn"))
+  (def filename (string output-path "/verify-" (util/mk-timestamp) ".jdn"))
   (spit filename (string/format "%j" results))
   (printf "Results saved to %s\n" filename))
 
@@ -77,11 +65,10 @@
   (when (find-index |(= $ "--help") rest)
     (print usage)
     (os/exit 0))
-  (util/check-unknown-args rest ["--futhark-dir" "--output" "--runs" "--backend" "--help"])
+  (util/check-unknown-args rest ["--futhark-dir" "--output" "--backend" "--help"])
 
   (def futhark-dir (or (util/get-arg "--futhark-dir" rest false) "futhark-PropProp"))
   (def output-path (or (util/get-arg "--output"      rest false) "."))
-  (def n           (scan-number (or (util/get-arg "--runs"    rest false) "1")))
   (def backend     (or (util/get-arg "--backend"     rest false) "cuda"))
-  (def results (run-benchmarks (os/realpath futhark-dir) n backend))
-  (save-results results output-path n))
+  (def results (run-benchmarks (os/realpath futhark-dir) backend))
+  (save-results results output-path))

@@ -1,7 +1,7 @@
 #!/usr/bin/env janet
 
 # Runs GPU performance benchmarks for Fig 14 (right table).
-# Requires futhark with a CUDA backend and appropriate datasets.
+# Requires futhark with a GPU backend and appropriate datasets.
 # For kmeans, datasets must be present in perf-dir/kmeans-sparse/data/.
 # See perf-tests/README for details.
 
@@ -9,11 +9,12 @@
 
 (def usage
   ``
-  Usage: janet perf.janet [--perf-dir <path>] [--output <path>] [--skip-kmeans] [--skip-partition] [--help]
+  Usage: janet perf.janet [--perf-dir <path>] [--output <path>] [--backend <b>] [--skip-kmeans] [--skip-partition] [--help]
 
     --perf-dir:       Path to the perf-tests directory
                       (default: perf-tests)
     --output:         Directory to save results (default: current directory)
+    --backend:        Futhark GPU backend to use: cuda or opencl (default: cuda)
     --skip-kmeans:    Skip kmeans benchmarks (e.g. if datasets are unavailable)
     --skip-partition: Skip partition2 benchmarks
     --help:           Print this usage information.
@@ -56,16 +57,16 @@
                   (put result (string cur-entry "\t" ds) num)))))))))
   result)
 
-(defn run-futhark-bench [perf-dir subdir fut-file]
+(defn run-futhark-bench [perf-dir subdir fut-file backend]
   (def full-dir (string perf-dir "/" subdir))
   (def [out exit-code]
-    (util/run-output* ["futhark" "bench" "--backend=cuda" fut-file] full-dir))
+    (util/run-output* ["futhark" "bench" (string "--backend=" backend) fut-file] full-dir))
   (when (not= exit-code 0)
     (eprintf "ERROR: futhark bench failed for %s:\n%s\n" fut-file out)
     (os/exit exit-code))
   (parse-bench-output fut-file out))
 
-(defn bench-kmeans [perf-dir]
+(defn bench-kmeans [perf-dir backend]
   # futhark bench looks for <program>.tuning automatically; copy the shared
   # tuning file to match each variant's expected name.
   (def kmeans-dir (string perf-dir "/kmeans-sparse"))
@@ -73,9 +74,9 @@
              "cp -f k10-manual.fut.tuning k10-manual-dynamic.fut.tuning 2>/dev/null; cp -f k10-manual.fut.tuning k10-manual-static.fut.tuning 2>/dev/null; true"]
             kmeans-dir)
   (printf "Benchmarking kmeans (dynamic)...\n")
-  (def dyn-data    (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-dynamic.fut"))
+  (def dyn-data    (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-dynamic.fut" backend))
   (printf "Benchmarking kmeans (static)...\n")
-  (def static-data (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-static.fut"))
+  (def static-data (run-futhark-bench perf-dir "kmeans-sparse" "k10-manual-static.fut" backend))
   # Merge: find matching datasets
   (def result @{})
   (each [k v] (pairs dyn-data)
@@ -93,9 +94,9 @@
     (put result ds-short @{:dyn v :static static-mean}))
   result)
 
-(defn bench-partition2 [perf-dir]
+(defn bench-partition2 [perf-dir backend]
   (printf "Benchmarking partition2...\n")
-  (def data (run-futhark-bench perf-dir "partition2" "partition2.fut"))
+  (def data (run-futhark-bench perf-dir "partition2" "partition2.fut" backend))
   (def result @{})
   (each [k v] (pairs data)
     (def parts (string/split "\t" k))
@@ -130,16 +131,17 @@
   (when (find-index |(= $ "--help") rest)
     (print usage)
     (os/exit 0))
-  (util/check-unknown-args rest ["--perf-dir" "--output" "--skip-kmeans" "--skip-partition" "--help"])
+  (util/check-unknown-args rest ["--perf-dir" "--output" "--backend" "--skip-kmeans" "--skip-partition" "--help"])
 
   (def perf-dir
     (os/realpath
       (or (util/get-arg "--perf-dir" rest false)
           "perf-tests")))
-  (def output-path     (or (util/get-arg "--output" rest false) "."))
+  (def output-path     (or (util/get-arg "--output"  rest false) "."))
+  (def backend         (or (util/get-arg "--backend" rest false) "cuda"))
   (def skip-kmeans?    (find-index |(= $ "--skip-kmeans")    rest))
   (def skip-partition? (find-index |(= $ "--skip-partition") rest))
 
-  (def kmeans    (if skip-kmeans?    @{} (bench-kmeans     perf-dir)))
-  (def partition (if skip-partition? @{} (bench-partition2  perf-dir)))
+  (def kmeans    (if skip-kmeans?    @{} (bench-kmeans     perf-dir backend)))
+  (def partition (if skip-partition? @{} (bench-partition2  perf-dir backend)))
   (save-results kmeans partition output-path))
