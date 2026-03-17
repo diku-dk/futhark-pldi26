@@ -58,7 +58,7 @@
    :filter       {:md "filter"        :tex-name `$\mathsf{filter}$`         :properties "Equiv, FP"             :properties-tex `Equiv,~FP`              :num-s 1 :num-a 3}
    :filter-irreg {:md "filter_irreg"  :tex-name `$\mathsf{filter\_irreg}$`  :properties "Range, Equiv, InvFP"   :properties-tex `Range,~Equiv,~InvFP`    :num-s 1 :num-a 3}
    :quickhull    {:md "quickhull"     :tex-name `$\mathsf{quickhull}$`      :properties "Range,InvFP,FP"        :properties-tex `Range,~InvFP,~FP,`      :num-s 8 :num-a 21}
-   :bfs          {:md "bfs"           :tex-name `$\mathsf{bfs}$`            :properties "Range,FP,Inj,Mono"     :properties-tex `Range,~Mono,~Inj,~FP`   :num-s 1 :num-a 26}
+   :bfs          {:md "bfs"           :tex-name `$\mathsf{bfs}$`            :properties "Range,FP,Inj,Mono"     :properties-tex `Range,~Mono,~Inj,~FP`   :num-s 1 :num-a 28}
    :lavaMD       {:md "lavaMD"        :tex-name `$\mathsf{lavaMD}$`         :properties "Range"                 :properties-tex `Range`                  :num-s 0 :num-a 6}
    :srad         {:md "srad"          :tex-name `$\mathsf{srad}$`           :properties "Range"                 :properties-tex `Range`                  :num-s 0 :num-a 12}})
 
