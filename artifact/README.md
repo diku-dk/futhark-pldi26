@@ -6,9 +6,9 @@ provides the Dafny programs discussed in Section 2.
 
 ## Requirements
 
-- [Docker](https://docs.docker.com/get-docker/) on an x86-64 host
+- A system capable of running an x86-64 [Docker](https://docs.docker.com/get-docker/) image
 - The artifact image `propprop.tar.gz`
-- A few GB of RAM
+- 6GB of RAM
 
 Fig. 14 has two parts with different GPU requirements:
 
@@ -66,30 +66,25 @@ All scripts accept `--help` for full options. The full evaluation runs
 `futhark verify` on all 10 programs and (with a GPU) the performance benchmarks,
 producing `results/fig14-<timestamp>.{md,tex,pdf}` (see [Output](#output)).
 
-### AMD GPU (OpenCL, untested)
+### Starting the container
 
-Start the container with AMD device passthrough:
+Start the container with the appropriate flags for your GPU:
 
-```
-$ docker run --rm --device=/dev/kfd --device=/dev/dri --group-add video --group-add render -it propprop:latest
-```
+| GPU                  | `docker run` command                                                                                                     |
+|----------------------|--------------------------------------------------------------------------------------------------------------------------|
+| NVIDIA (recommended) | `docker run --rm --device nvidia.com/gpu=all -it propprop:latest`                                                        |
+| AMD (untested)       | `docker run --rm --device=/dev/kfd --device=/dev/dri --group-add video --group-add render -it propprop:latest`           |
+| None                 | `docker run --rm -it propprop:latest`                                                                                    |
 
-Then run the evaluation with the OpenCL backend:
+### Running the evaluation
 
-```
-$ janet bench.janet --backend opencl
-```
+Inside the container, run `bench.janet` with the appropriate options:
 
-> **Note:** The paper's results use NVIDIA/CUDA. OpenCL is also supported by
-> NVIDIA if CUDA is unavailable, but AMD hardware has not been tested.
-
-### No GPU (verification only, ~5 min)
-
-To reproduce only the left table of Fig. 14 (no GPU required):
-
-```
-$ janet bench.janet --skip-perf
-```
+| GPU    | Command                              | Produces                                   |
+|--------|--------------------------------------|--------------------------------------------|
+| NVIDIA | `janet bench.janet`                  | Both tables of Fig. 14                     |
+| AMD    | `janet bench.janet --backend opencl` | Both tables of Fig. 14                     |
+| None   | `janet bench.janet --skip-perf`      | Verification table only (left of Fig. 14) |
 
 ### Dafny programs (Section 2, ~5 min)
 
