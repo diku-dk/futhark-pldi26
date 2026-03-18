@@ -76,5 +76,5 @@
 (defn mk-timestamp []
   (def t (os/date))
   (string/format "%04d%02d%02d-%02d%02d%02d"
-    (t :year) (t :month) (t :month-day)
+    (t :year) (+ 1 (t :month)) (t :month-day)
     (t :hours) (t :minutes) (t :seconds)))

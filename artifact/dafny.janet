@@ -8,9 +8,10 @@
 
 (def usage
   ``
-  Usage: janet dafny.janet [--dafny-dir <path>] [--help]
+  Usage: janet dafny.janet [--dafny-dir <path>] [--timeout <seconds>] [--help]
 
     --dafny-dir: Path to the dafny directory (default: dafny)
+    --timeout:   Per-condition verification time limit in seconds (default: 120)
     --help:      Print this usage information.
   ``)
 
@@ -28,30 +29,41 @@
    ["sec3/partition_gather_sigma_inj.dfy"               false]
    ["unverified_minimal_examples.dfy"                   false]])
 
-(defn run-dafny [dafny-dir file]
-  (def [_ exit-code] (util/run-output* ["dafny" "verify" file] dafny-dir))
-  (= exit-code 0))
+# Dafny exit code 4 means verification timed out.
+(defn run-dafny [dafny-dir file timeout]
+  (def [_ exit-code] (util/run-output* ["dafny" "verify" "--verification-time-limit" (string timeout) file] dafny-dir))
+  (cond
+    (= exit-code 0) :verified
+    (= exit-code 4) :timeout
+    :failed))
 
 (defn main [& args]
   (def rest (slice args 1))
   (when (find-index |(= $ "--help") rest)
     (print usage)
     (os/exit 0))
-  (util/check-unknown-args rest ["--dafny-dir" "--help"])
+  (util/check-unknown-args rest ["--dafny-dir" "--timeout" "--help"])
 
   (def dafny-dir
     (os/realpath (or (util/get-arg "--dafny-dir" rest false) "dafny")))
+  (def timeout
+    (scan-number (or (util/get-arg "--timeout" rest false) "120")))
 
   (var all-ok true)
   (each [file expected?] programs
     (printf "%-52s " file)
     (flush)
-    (def verified? (run-dafny dafny-dir file))
+    (def result (run-dafny dafny-dir file timeout))
+    (def verified? (= result :verified))
+    # timeouts count as failures (not verified), so they satisfy expected-to-fail
     (def ok? (= verified? expected?))
     (unless ok? (set all-ok false))
     (printf "%s  (expected: %s)%s\n"
-      (if verified? "verified" "failed  ")
-      (if expected?  "verify" "fail  ")
+      (match result
+        :verified "verified"
+        :timeout  "timeout "
+        :failed   "failed  ")
+      (if expected? "verify" "fail  ")
       (if ok? "" "  *** UNEXPECTED")))
 
   (print "")

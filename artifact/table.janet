@@ -44,7 +44,7 @@
 # ------------------------------------------------------------------------------
 (def program-order
   [:max-match :mis :fft :primes :kmeans-ker
-   :partition :partition3 :seg-part :filter :filter-irreg :quickhull :bfs :lavaMD :srad])
+   :partition :partition3 :seg-part :filter :filter-irreg])
 
 (def program-meta
   {:max-match    {:md "max_match"     :tex-name `$\mathsf{max\_match}$`     :properties "Range, Equiv, Inj, FP" :properties-tex `Range,~Equiv,~Inj,~FP` :num-s 6 :num-a 14}
@@ -57,24 +57,21 @@
    :seg-part     {:md "seg_partition" :tex-name `$\mathsf{seg\_partition}$` :properties "Range, Equiv, FP"      :properties-tex `Range,~Equiv,~FP`       :num-s 1 :num-a 3}
    :filter       {:md "filter"        :tex-name `$\mathsf{filter}$`         :properties "Equiv, FP"             :properties-tex `Equiv,~FP`              :num-s 1 :num-a 3}
    :filter-irreg {:md "filter_irreg"  :tex-name `$\mathsf{filter\_irreg}$`  :properties "Range, Equiv, InvFP"   :properties-tex `Range,~Equiv,~InvFP`    :num-s 1 :num-a 3}
-   :quickhull    {:md "quickhull"     :tex-name `$\mathsf{quickhull}$`      :properties "Range,InvFP,FP"        :properties-tex `Range,~InvFP,~FP,`      :num-s 8 :num-a 21}
-   :bfs          {:md "bfs"           :tex-name `$\mathsf{bfs}$`            :properties "Range,FP,Inj,Mono"     :properties-tex `Range,~Mono,~Inj,~FP`   :num-s 1 :num-a 28}
-   :lavaMD       {:md "lavaMD"        :tex-name `$\mathsf{lavaMD}$`         :properties "Range"                 :properties-tex `Range`                  :num-s 0 :num-a 6}
-   :srad         {:md "srad"          :tex-name `$\mathsf{srad}$`           :properties "Range"                 :properties-tex `Range`                  :num-s 0 :num-a 12}})
+})
 
 # Formatting helpers
 # ------------------------------------------------------------------------------
 (defn fmt-secs [n]
-  (if n (string/format "%.1fs" n) "—"))
+  (if n (string/format "%.1fs" n) "N/A"))
 
 (defn fmt-pct [n]
-  (if n (string/format "%d%%" (math/round n)) "—"))
+  (if n (string/format "%d%%" (math/round n)) "N/A"))
 
 (defn fmt-pct-tex [n]
   (if n (string/format "%d\\%%" (math/round n)) "---"))
 
 (defn fmt-ms [us]
-  (if us (string/format "%dms" (math/round (/ us 1000))) "—"))
+  (if us (string/format "%dms" (math/round (/ us 1000))) "N/A"))
 
 (defn fmt-ms-tex [us]
   (if us (string/format "%d" (math/round (/ us 1000))) "---"))
@@ -82,7 +79,7 @@
 (defn fmt-speedup [a b]
   (if (and a b (> b 0))
     (string/format "%.1f×" (/ a b))
-    "—"))
+    "N/A"))
 
 (defn fmt-speedup-tex [a b]
   (if (and a b (> b 0))
@@ -146,7 +143,7 @@
               ["kmeans_ker" ds
                (fmt-ms (get entry :dyn))
                (fmt-speedup (get entry :dyn) (get entry :static))
-               "—"])
+               "N/A"])
             ["movielens" "nytimes" "scrna"])
       ;(map (fn [sz]
               (def entry (get partition sz @{}))

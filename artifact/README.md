@@ -21,8 +21,8 @@ Fig. 14 has two parts with different GPU requirements:
 > The paper's performance results were obtained with an NVIDIA GPU using the
 > CUDA backend; this is the recommended path. AMD GPUs are supported via
 > Futhark's OpenCL backend but have not been tested with this artifact. Without
-> any GPU, you can still reproduce the verification table; see
-> [No GPU](#no-gpu-verification-only-5-min).
+> any GPU, you can still reproduce the verification table by passing
+> `--skip-perf` to `bench.janet`; see [Step-by-Step Instructions](#step-by-step-instructions).
 
 **Authors' hardware:**
 
@@ -86,13 +86,19 @@ Inside the container, run `bench.janet` with the appropriate options:
 | AMD    | `janet bench.janet --backend opencl` | Both tables of Fig. 14                     |
 | None   | `janet bench.janet --skip-perf`      | Verification table only (left of Fig. 14) |
 
-### Dafny programs (Section 2, ~5 min)
+### Dafny programs (Section 2, ~10 min)
+
+Section 2 compares PropProp against Dafny. The `dafny/` directory contains the
+programs: `soacs.dfy` and `sec1/` should verify; `sec2/`, `sec3/`, and
+`unverified_minimal_examples.dfy` should fail.
 
 ```
 $ janet dafny.janet
 ```
 
-See `dafny/README.md` for a description of the programs.
+Each program has a 120-second per-condition time limit (override with
+`--timeout <seconds>`). `timeout` and `failed` are both correct outcomes for
+programs expected to fail. See `dafny/README.md` for details.
 
 ---
 
@@ -132,7 +138,7 @@ $ docker cp <container-id>:/artifact/results/fig14-20260317-123456.pdf .
 Each script can also be run independently:
 
 ```
-$ janet verify.janet --help   # verification timing only
+$ janet verify.janet  --help  # verification timing only
 $ janet perf.janet    --help  # GPU benchmarks only
 $ janet table.janet   --help  # regenerate table from existing .jdn files
 $ janet dafny.janet   --help  # Dafny verification only
@@ -148,6 +154,23 @@ Requirements:
 * `futhark` on `PATH` (the modified compiler from `futhark-PropProp/`)
 * `latexmk` (for PDF output)
 * NVIDIA GPU + CUDA toolkit (for performance benchmarks)
+* [Dafny 4.10.0](https://github.com/dafny-lang/dafny/releases) (for `dafny.janet`)
+
+---
+
+## Reusability Guide
+
+### Running PropProp on new Futhark programs
+
+The modified compiler accepts any Futhark program. To verify a new program, add
+property annotations and run:
+
+```
+$ futhark verify myprogram.fut
+```
+
+The programs in `futhark-PropProp/tests/indexfn/` serve as examples of annotated
+programs.
 
 ---
 
@@ -164,5 +187,4 @@ Requirements:
 * `dafny/`: Dafny programs for Section 2.
 
 > **Note:** The artifact scripts (`*.janet`), this README, and the Docker
-> container (`docker.nix`) were developed with assistance from Anthropic's
-> Claude.
+> container (`docker.nix`) were developed with AI assistance.

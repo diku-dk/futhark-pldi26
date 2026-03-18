@@ -2,6 +2,10 @@
   "https://github.com/NixOS/nixpkgs/archive/0f1874526206d8a2d6f0a3925618cc45ac83049f.tar.gz")
   { } }:
 let
+  # nixos-25.05 pin for dafny 4.10.0 (current pin has 4.7.0)
+  pkgs-dafny = import (fetchTarball
+    "https://github.com/NixOS/nixpkgs/archive/ac62194c3917d5f474c1a844b6fd6da2db95077d.tar.gz")
+    { };
   futhark-PropPropArchive = import ./artifact/futhark-PropProp/default.nix { };
   futhark-PropProp = futhark-PropPropArchive.overrideAttrs (old: {
     installPhase = ''
@@ -17,10 +21,6 @@ let
   # To add them, copy them into:
   #   artifact/futhark-PropProp/artifact_tools/perf-tests/kmeans-sparse/data/
   # and rebuild. Without them, kmeans benchmarks are automatically skipped.
-  # Dataset OIDs (sha256) from diku-dk/futhark-ad for reference:
-  #   movielens.in.gz: 616c57d0ae0c77ee89399571d9f5d022c6de766de0b72573996d6b42bcd2e91b (45MB)
-  #   nytimes.in.gz:   80e4a5fc8c2b8af17517076867ab584e87bf3d3de9f37a699bea7392661d3d33 (342MB)
-  #   scrna.in.gz:     e561aca13d2d663842b3c9b9818bafa47852b33fc65dfe69ca845f1a14e161cc (259MB)
 
   artifact = pkgs.runCommand "container-artifact-dir" {} ''
     mkdir -p $out
@@ -36,7 +36,7 @@ let
   };
 
   texlive-env = pkgs.texlive.combine {
-    inherit (pkgs.texlive) scheme-minimal amsfonts latexmk;
+    inherit (pkgs.texlive) scheme-minimal amsfonts latexmk pdftex;
   };
 
   imageEnv = pkgs.buildEnv {
@@ -44,7 +44,7 @@ let
     paths = with pkgs; [
       futhark-PropProp
       bashInteractive
-      dafny
+      pkgs-dafny.dafny
       janet
       bat
       texlive-env
