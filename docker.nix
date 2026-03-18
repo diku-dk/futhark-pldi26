@@ -36,7 +36,7 @@ let
   };
 
   texlive-env = pkgs.texlive.combine {
-    inherit (pkgs.texlive) scheme-minimal amsfonts latexmk pdftex;
+    inherit (pkgs.texlive) scheme-basic amsfonts latexmk;
   };
 
   imageEnv = pkgs.buildEnv {
