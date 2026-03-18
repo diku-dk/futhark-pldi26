@@ -28,7 +28,11 @@
    [:partition3   "tests/indexfn/partition3.fut"      "tests/indexfn/partition3_unannotated.fut"]
    [:seg-part     "tests/indexfn/seg_partition.fut"   "tests/indexfn/seg_partition_unannotated.fut"]
    [:filter       "tests/indexfn/filter.fut"          "tests/indexfn/filter_unannotated.fut"]
-   [:filter-irreg "tests/indexfn/filter_irreg.fut"    "tests/indexfn/filter_irreg_unannotated.fut"]])
+   [:filter-irreg "tests/indexfn/filter_irreg.fut"    "tests/indexfn/filter_irreg_unannotated.fut"]
+   [:quickhull    "tests/indexfn/quickhull.fut"       "tests/indexfn/quickhull_unannotated.fut"]
+   [:bfs          "tests/indexfn/bfs.fut"             "tests/indexfn/bfs_unannotated.fut"]
+   [:lavaMD       "tests/indexfn/lavaMD.fut"          "tests/indexfn/lavaMD_unannotated.fut"]
+   [:srad         "tests/indexfn/srad.fut"            "tests/indexfn/srad_unannotated.fut"]])
 
 (defn mean [xs]
   (/ (reduce + 0 xs) (length xs)))
