@@ -4,39 +4,41 @@ This artifact includes an implementation of PropProp in the Futhark compiler,
 reproduces Fig. 14 from the paper (modulo hardware-dependent timing values) and
 provides the Dafny programs discussed in Section 2.
 
-> **Note:** The artifact scripts (`*.janet`), this README, and the Docker
-> container (`docker.nix`) were developed with assistance from Anthropic's
-> Claude.
-
 ## Requirements
 
-### Software
-
-- [Docker](https://docs.docker.com/get-docker/)
+- [Docker](https://docs.docker.com/get-docker/) on an x86-64 host
 - The artifact image `propprop.tar.gz`
+- A few GB of RAM
 
-### Hardware
+Fig. 14 has two parts with different GPU requirements:
 
-- A system capable of running an x86-64 Docker image
-- For the verification table from Fig. 14: any machine (no GPU required)
-- For the performance table from Fig. 14: an NVIDIA GPU (CUDA) or AMD GPU
-  (OpenCL)
-- Expected RAM requirement: a few GB
-- Expected GPU memory requirement: about 8GB.
+| Part                      | GPU                        | Notes                                           |
+|---------------------------|----------------------------|-------------------------------------------------|
+| Verification table (left) | None required              |                                                 |
+| Performance table (right) | NVIDIA (CUDA, recommended) | Host driver supporting CUDA ≥ 13.0, ~8 GB VRAM |
+| Performance table (right) | AMD (OpenCL)               | Untested                                        |
 
-> **Authors' hardware:**
->
-> Verification table (left table of Fig. 14):
-> macOS 26.3, Apple M4 CPU, 16 GB memory
->
-> Performance table (right table of Fig. 14):
-> Linux, AMD EPYC 7352 24-Core CPU, NVIDIA A100 GPU
+> The paper's performance results were obtained with an NVIDIA GPU using the
+> CUDA backend; this is the recommended path. AMD GPUs are supported via
+> Futhark's OpenCL backend but have not been tested with this artifact. Without
+> any GPU, you can still reproduce the verification table; see
+> [No GPU](#no-gpu-verification-only-5-min).
+
+**Authors' hardware:**
+
+|     | Verification table        | Performance table             |
+|-----|---------------------------|-------------------------------|
+| OS  | macOS 26.3                | Linux                         |
+| CPU | Apple M4                  | AMD EPYC 7352 24-Core         |
+| RAM | 16 GB                     | 192 GB                        |
+| GPU | None                      | NVIDIA A100                   |
 
 ---
 
-## Getting Started Guide
+## Getting Started Guide (Requires an NVIDIA GPU)
 
-The full evaluation completes in **under 10 minutes** on a modern NVIDIA GPU.
+> The full evaluation completes in under 10 minutes on a modern consumer CPU and
+> NVIDIA GPU.
 
 Load and start the container:
 
@@ -52,9 +54,9 @@ $ janet bench.janet
 ```
 
 This produces `results/fig14-<timestamp>.{md,tex,pdf}` reproducing Fig. 14.
-View the results with `bat results/fig14-<timestamp>.md`. See the
-[Step-by-Step Instructions](#step-by-step-instructions) below for GPU variants,
-running without a GPU, Dafny verification, and further details.
+View the results with `bat results/fig14-<timestamp>.md`. See the [Step-by-Step
+Instructions](#step-by-step-instructions) below for AMD GPU, no GPU
+benchmarking, Dafny verification, and further details.
 
 ---
 
@@ -64,27 +66,26 @@ All scripts accept `--help` for full options. The full evaluation runs
 `futhark verify` on all 10 programs and (with a GPU) the performance benchmarks,
 producing `results/fig14-<timestamp>.{md,tex,pdf}` (see [Output](#output)).
 
-### OpenCL backend (AMD GPU, untested)
+### AMD GPU (OpenCL, untested)
 
-The artifact supports the `opencl` backend, which works with both AMD and NVIDIA
-GPUs. For NVIDIA, CUDA is preferred and is what the paper's results were
-obtained with; use OpenCL only if CUDA is unavailable. The artifact has not been
-tested with AMD hardware. To use OpenCL with an AMD GPU, start the container
-with AMD device passthrough:
+Start the container with AMD device passthrough:
 
 ```
 $ docker run --rm --device=/dev/kfd --device=/dev/dri --group-add video --group-add render -it propprop:latest
 ```
 
-Then inside the container:
+Then run the evaluation with the OpenCL backend:
 
 ```
 $ janet bench.janet --backend opencl
 ```
 
-### Verification only (no GPU, ~5 min)
+> **Note:** The paper's results use NVIDIA/CUDA. OpenCL is also supported by
+> NVIDIA if CUDA is unavailable, but AMD hardware has not been tested.
 
-To reproduce only the left table of Fig. 14 (verification results, no GPU required):
+### No GPU (verification only, ~5 min)
+
+To reproduce only the left table of Fig. 14 (no GPU required):
 
 ```
 $ janet bench.janet --skip-perf
@@ -150,7 +151,7 @@ Requirements:
 
 * [Janet](https://janet-lang.org/)
 * `futhark` on `PATH` (the modified compiler from `futhark-PropProp/`)
-* `latexmk` and a LaTeX distribution with `amssymb` (for PDF output)
+* `latexmk` (for PDF output)
 * NVIDIA GPU + CUDA toolkit (for performance benchmarks)
 
 ---
@@ -166,3 +167,7 @@ Requirements:
 * `futhark-PropProp/`: The modified Futhark compiler (Haskell/Cabal project). See folders `futhark-PropProp/src/Futhark/SoP` and `futhark-PropProp/src/Futhark/Analysis/Properties`.
 * `perf-tests/`: Futhark benchmark programs for performance evaluation.
 * `dafny/`: Dafny programs for Section 2.
+
+> **Note:** The artifact scripts (`*.janet`), this README, and the Docker
+> container (`docker.nix`) were developed with assistance from Anthropic's
+> Claude.
