@@ -97,8 +97,8 @@ $ janet dafny.janet
 ```
 
 Each program has a 120-second per-condition time limit (override with
-`--timeout <seconds>`). `timeout` and `failed` are both correct outcomes for
-programs expected to fail. See `dafny/README.md` for details.
+`--timeout <seconds>`). `failed` is the correct outcome for programs expected
+to fail. See `dafny/README.md` for details.
 
 ---
 

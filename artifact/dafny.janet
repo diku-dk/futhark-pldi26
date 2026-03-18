@@ -29,13 +29,9 @@
    ["sec3/partition_gather_sigma_inj.dfy"               false]
    ["unverified_minimal_examples.dfy"                   false]])
 
-# Dafny exit code 4 means verification timed out.
 (defn run-dafny [dafny-dir file timeout]
   (def [_ exit-code] (util/run-output* ["dafny" "verify" "--verification-time-limit" (string timeout) file] dafny-dir))
-  (cond
-    (= exit-code 0) :verified
-    (= exit-code 4) :timeout
-    :failed))
+  (if (= exit-code 0) :verified :failed))
 
 (defn main [& args]
   (def rest (slice args 1))
@@ -53,17 +49,12 @@
   (each [file expected?] programs
     (printf "%-52s " file)
     (flush)
-    (def result (run-dafny dafny-dir file timeout))
-    (def verified? (= result :verified))
-    # timeouts count as failures (not verified), so they satisfy expected-to-fail
+    (def verified? (= (run-dafny dafny-dir file timeout) :verified))
     (def ok? (= verified? expected?))
     (unless ok? (set all-ok false))
     (printf "%s  (expected: %s)%s\n"
-      (match result
-        :verified "verified"
-        :timeout  "timeout "
-        :failed   "failed  ")
-      (if expected? "verify" "fail  ")
+      (if verified? "verified" "failed  ")
+      (if expected? "verify  " "fail    ")
       (if ok? "" "  *** UNEXPECTED")))
 
   (print "")

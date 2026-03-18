@@ -14,8 +14,7 @@ and example data-parallel-style programs in Dafny.
 - `soacs.dfy` and programs in `sec1/` should verify successfully.
 - Programs in `sec2/`, `sec3/`, and `unverified_minimal_examples.dfy` should fail to verify.
 
-`timeout` and `failed` are both correct outcomes for programs expected to fail;
-both indicate that Dafny could not verify the program within the time limit.
+`failed` is the correct outcome for programs expected to fail.
 
 ## Running
 
