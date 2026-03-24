@@ -1,5 +1,5 @@
 include "soacs.dfy"
-include "sec3.1/partition_inds.dfy"
+include "sec1/partition_inds.dfy"
 import opened SOACs
 
 ghost predicate Filt(xs: seq<int>, p: int -> bool, ys: seq<int>)
