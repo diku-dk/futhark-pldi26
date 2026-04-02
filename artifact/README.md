@@ -16,9 +16,9 @@ provides the Dafny programs discussed in Section 2.
 
 Fig. 14 has two parts with different GPU requirements:
 
-| Part                      | GPU                        | Notes                                           |
-|---------------------------|----------------------------|-------------------------------------------------|
-| Verification table (left) | None required              |                                                 |
+| Part                      | GPU                        | Notes                                                                             |
+|---------------------------|----------------------------|---------------------------------------------------------------------------------- |
+| Verification table (left) | None required              |                                                                                   |
 | Performance table (right) | NVIDIA (CUDA, recommended) | Host driver supporting CUDA ≥ 13.0, NVIDIA container toolkit ≥ 1.18, ~8 GB VRAM  |
 
 Note that even if CUDA and docker are installed, [NVIDIA container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/1.18.1/install-guide.html) might not be.
