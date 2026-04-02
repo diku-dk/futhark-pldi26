@@ -14,7 +14,7 @@
     --perf-dir:       Path to the perf-tests directory
                       (default: perf-tests)
     --output:         Directory to save results (default: current directory)
-    --backend:        Futhark GPU backend to use: cuda or opencl (default: cuda)
+    --backend:        Futhark GPU backend to use: cuda or c (default: cuda)
     --skip-kmeans:    Skip kmeans benchmarks (e.g. if datasets are unavailable)
     --skip-partition: Skip partition2 benchmarks
     --help:           Print this usage information.

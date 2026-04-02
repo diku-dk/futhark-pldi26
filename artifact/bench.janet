@@ -18,7 +18,7 @@
                           (default: perf-tests)
     --data <path>:        Directory to save raw benchmark data (default: data)
     --results <path>:     Directory to save generated tables (default: results)
-    --backend <b>:        Futhark backend for GPU and compile-time baseline: cuda or opencl (default: cuda)
+    --backend <b>:        Futhark backend: cuda or c (default: cuda)
     --skip-verify:        Skip verification timing benchmarks
     --skip-perf:          Skip GPU performance benchmarks (use if no GPU available)
     --skip-kmeans:        Skip kmeans GPU benchmarks (e.g. if datasets unavailable)

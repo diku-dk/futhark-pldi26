@@ -19,13 +19,11 @@ Fig. 14 has two parts with different GPU requirements:
 | Part                      | GPU                        | Notes                                           |
 |---------------------------|----------------------------|-------------------------------------------------|
 | Verification table (left) | None required              |                                                 |
-| Performance table (right) | NVIDIA (CUDA, recommended) | Host driver supporting CUDA ≥ 13.0, ~8 GB VRAM |
-| Performance table (right) | AMD (OpenCL)               | Untested                                        |
+| Performance table (right) | NVIDIA (CUDA, recommended) | Host driver supporting CUDA ≥ 13.0, NVIDIA container toolkit ≥ 1.18, ~8 GB VRAM  |
 
-> The paper's performance results were obtained with an NVIDIA GPU using the
-> CUDA backend; this is the recommended path. AMD GPUs are supported via
-> Futhark's OpenCL backend but have not been tested with this artifact. Without
-> any GPU, you can still reproduce the verification table by passing
+Note that even if CUDA and docker are installed, [NVIDIA container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/1.18.1/install-guide.html) might not be.
+
+> Without any GPU, you can still reproduce the verification table by passing
 > `--skip-perf` to `bench.janet`; see [Step-by-Step Instructions](#step-by-step-instructions).
 
 **Authors' hardware:**
@@ -58,8 +56,9 @@ $ janet bench.janet
 ```
 
 This produces `results/fig14-<timestamp>.{md,tex,pdf}` reproducing Fig. 14.
-View the results with `bat results/fig14-<timestamp>.md`. See the [Step-by-Step
-Instructions](#step-by-step-instructions) below for AMD GPU, no GPU
+Follow [Retrieving results from the container](#retrieving-results-from-the-container)
+or view the results immediately with `bat results/fig14-<timestamp>.md`. See the [Step-by-Step
+Instructions](#step-by-step-instructions) below for no GPU
 benchmarking, Dafny verification, and further details.
 
 ---
@@ -77,7 +76,6 @@ Start the container with the appropriate flags for your GPU:
 | GPU                  | `docker run` command                                                                                                     |
 |----------------------|--------------------------------------------------------------------------------------------------------------------------|
 | NVIDIA (recommended) | `docker run --rm --device nvidia.com/gpu=all -it propprop:latest`                                                        |
-| AMD (untested)       | `docker run --rm --device=/dev/kfd --device=/dev/dri --group-add video --group-add render -it propprop:latest`           |
 | None                 | `docker run --rm -it propprop:latest`                                                                                    |
 
 ### Running the evaluation
@@ -87,7 +85,6 @@ Inside the container, run `bench.janet` with the appropriate options:
 | GPU    | Command                              | Produces                                   |
 |--------|--------------------------------------|--------------------------------------------|
 | NVIDIA | `janet bench.janet`                  | Both tables of Fig. 14                     |
-| AMD    | `janet bench.janet --backend opencl` | Both tables of Fig. 14                     |
 | None   | `janet bench.janet --skip-perf`      | Verification table only (left of Fig. 14) |
 
 ### Dafny programs (Section 2, ~10 min)
@@ -123,6 +120,8 @@ to fail. See `dafny/README.md` for details.
 > work and/or be brittle.
 
 ### Retrieving results from the container
+
+Requirement: The container must be running.
 
 ```
 $ docker ps   # get container ID
