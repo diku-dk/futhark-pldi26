@@ -177,7 +177,7 @@ programs.
 
 ### Property annotation language
 
-Properties are written as refinement types on function parameters and return
+Properties are written as annotations on function parameter types and return
 values using curly-brace syntax:
 
 ```futhark
@@ -188,10 +188,8 @@ def f
   = ...
 ```
 
-The expression after `|` is a predicate `\v -> P v` where `P` is a boolean
-combination of the predefined properties listed below, using `&&`, `||`, and
-`not`. The complete, documented set of available properties is in
-`futhark-PropProp/prelude/properties.fut`. A summary:
+The expression after `|` is a predicate `\v -> P v` where `P` is a conjunction of the predefined properties listed below using `&&`.
+For example,  `(offsets: {[n+1]i64 | \x -> Range x (0,inf) && Monotonic (<=) x})` says that offsets has both a range and a monotonicity property.
 
 | Property                             | Meaning                                                                                              |
 |--------------------------------------|------------------------------------------------------------------------------------------------------|
@@ -206,7 +204,7 @@ combination of the predefined properties listed below, using `&&`, `||`, and
 | `FiltPartInv X pf pp`                | Index array `X` permutes its filtered domain with a 2-way partition (for scatter).                   |
 | `FiltPartInv2 X pf pp1 pp2`          | Same as `FiltPartInv` but with a 3-way partition.                                                    |
 
-See Fig. 7 in the paper for the formal proof obligations the properties.
+See Fig. 7 in the paper for the formal proof obligations of the properties.
 
 For information on Futhark itself, please see the [Futhark
 website](https://futhark-lang.org), which includes extensive
