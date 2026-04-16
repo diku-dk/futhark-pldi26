@@ -10,10 +10,6 @@ The artifact includes an implementation of PropProp in the Futhark compiler,
 reproduces Table 1 from the paper (modulo hardware-dependent timing values) and
 provides the Dafny programs discussed in Section 2.
 
-> **NOTE:** Since submission we have added additional verified programs
-> (quickhull, bfs, lavaMD and srad); we include them in this version of the
-> artifact.
-
 ## Requirements
 
 - A system capable of running an x86-64 [Docker](https://docs.docker.com/get-docker/) image
