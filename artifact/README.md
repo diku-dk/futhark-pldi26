@@ -190,6 +190,7 @@ def f
 
 The expression after `|` is a predicate `\v -> P v` where `P` is a conjunction of the predefined properties listed below using `&&`.
 For example,  `(offsets: {[n+1]i64 | \x -> Range x (0,inf) && Monotonic (<=) x})` says that offsets has both a range and a monotonicity property.
+The complete, documented set of available properties is in `futhark-PropProp/prelude/properties.fut`.
 
 | Property                             | Meaning                                                                                              |
 |--------------------------------------|------------------------------------------------------------------------------------------------------|
