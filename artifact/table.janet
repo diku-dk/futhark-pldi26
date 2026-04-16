@@ -1,6 +1,6 @@
 #!/usr/bin/env janet
 
-# Generates Fig 14 from the paper as Markdown, LaTeX, and optionally PDF.
+# Generates Table 1 from the paper as Markdown, LaTeX, and optionally PDF.
 # Reads verify .jdn (from verify.janet) and perf .jdn (from perf.janet).
 
 (import ./util)
@@ -160,10 +160,10 @@
 
 (defn render-markdown [verify perf]
   (string
-    "## Fig 14 (left): Verification results\n\n"
+    "## Table 1 (left): Verification results\n\n"
     (render-markdown-verify verify)
     "\n\n"
-    "## Fig 14 (right): Performance results\n\n"
+    "## Table 1 (right): Performance results\n\n"
     (render-markdown-perf perf)
     "\n"))
 

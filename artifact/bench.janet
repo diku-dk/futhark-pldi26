@@ -1,7 +1,7 @@
 #!/usr/bin/env janet
 
 # Main artifact evaluation script.
-# Reproduces Fig 14 from "Verifying Array Properties in Pure Data-Parallel Programs".
+# Reproduces Table 1 from "Verifying Array Properties in Pure Data-Parallel Programs".
 #
 # Usage inside Docker container:
 #   janet bench.janet            # full evaluation

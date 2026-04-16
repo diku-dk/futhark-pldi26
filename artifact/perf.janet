@@ -1,6 +1,6 @@
 #!/usr/bin/env janet
 
-# Runs GPU performance benchmarks for Fig 14 (right table).
+# Runs GPU performance benchmarks for Table 1 (right table).
 # Requires futhark with a GPU backend and appropriate datasets.
 # For kmeans, datasets must be present in perf-dir/kmeans-sparse/data/.
 # See perf-tests/README for details.

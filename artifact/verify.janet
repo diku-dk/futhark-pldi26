@@ -1,6 +1,6 @@
 #!/usr/bin/env janet
 
-# Benchmarks verification time for the programs in Fig 14 (left table).
+# Benchmarks verification time for the programs in Table 1 (left table).
 # Runs `futhark verify` (type check + property analysis) and subtracts
 # `futhark check` (type check only) to isolate property-analysis time.
 # Also runs `futhark cuda` on unannotated programs for compile-time baseline.
@@ -17,7 +17,7 @@
     --help:        Print this usage information.
   ``)
 
-# Programs in Fig 14 order: [key, annotated-path, unannotated-path]
+# Programs in Table 1 order: [key, annotated-path, unannotated-path]
 (def programs
   [[:max-match    "tests/indexfn/maxMatch_2d.fut"    "tests/indexfn/maxMatch_2d_unannotated.fut"]
    [:mis          "tests/indexfn/mis.fut"             "tests/indexfn/mis_unannotated.fut"]
