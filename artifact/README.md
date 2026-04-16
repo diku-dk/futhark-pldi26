@@ -173,7 +173,14 @@ $ futhark verify myprogram.fut
 ```
 
 The programs in `futhark-PropProp/tests/indexfn/` serve as examples of annotated
-programs.
+programs. The properties for annotations are defined as part of Futhark's
+prelude and are given in the `futhark-PropProp/prelude/properties.fut`
+library---see Fig. 7 in the paper for details on their precise meanings.
+
+For information on Futhark itself, please see the [Futhark
+website](https://futhark-lang.org), which includes extensive
+[documentation](https://futhark-lang.org/docs.html) including a [user guide](https://futhark.readthedocs.io/en/stable/) and a [book](https://futhark-book.readthedocs.io/en/latest/) on parallel programming
+in Futhark.
 
 ---
 
