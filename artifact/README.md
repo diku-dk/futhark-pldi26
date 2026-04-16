@@ -173,9 +173,40 @@ $ futhark verify myprogram.fut
 ```
 
 The programs in `futhark-PropProp/tests/indexfn/` serve as examples of annotated
-programs. The properties for annotations are defined as part of Futhark's
-prelude and are given in the `futhark-PropProp/prelude/properties.fut`
-library---see Fig. 7 in the paper for details on their precise meanings.
+programs.
+
+### Property annotation language
+
+Properties are written as refinement types on function parameters and return
+values using curly-brace syntax:
+
+```futhark
+def f
+  (n: {i64 | \x -> Range x (0,inf)})
+  (offsets: {[n+1]i64 | \x -> Range x (0,inf) && Monotonic (<=) x})
+  : { [n]i64 | \ys -> For ys (\i -> Range ys (0,offsets[i+1])) }
+  = ...
+```
+
+The expression after `|` is a predicate `\v -> P v` where `P` is a boolean
+combination of the predefined properties listed below, using `&&`, `||`, and
+`not`. The complete, documented set of available properties is in
+`futhark-PropProp/prelude/properties.fut`. A summary:
+
+| Property                             | Meaning                                                                                              |
+|--------------------------------------|------------------------------------------------------------------------------------------------------|
+| `Range x (lo, hi)`                   | Every element of `x` lies in `[lo, hi)`. Use `inf` for an unbounded upper bound.                     |
+| `Monotonic r x`                      | `x` is ordered by relation `r` (e.g. `(<=)` or `(<)`).                                               |
+| `Equiv x y`                          | `x` and `y` have equal length and identical elements.                                                |
+| `Injective x`                        | All elements of `x` are distinct (no codomain restriction).                                          |
+| `InjectiveRCD x (lo, hi)`            | Elements of `x` falling in `[lo, hi)` are distinct; RCD = Restricted CoDomain (paper: `Inj x Y`).    |
+| `BijectiveRCD x (lo, hi) (lo', hi')` | Elements of `x` falling in `[lo, hi)` biject onto `[lo', hi')` (paper: `Bij x Y Z`).                 |
+| `FiltPart X Y pf pp`                 | `X` equals `Y` filtered by `pf` and 2-way partitioned by `pp`.                                       |
+| `FiltPart2 X Y pf pp1 pp2`           | `X` equals `Y` filtered by `pf` and 3-way partitioned by `pp1`, `pp2`.                               |
+| `FiltPartInv X pf pp`                | Index array `X` permutes its filtered domain with a 2-way partition (for scatter).                   |
+| `FiltPartInv2 X pf pp1 pp2`          | Same as `FiltPartInv` but with a 3-way partition.                                                    |
+
+See Fig. 7 in the paper for the formal proof obligations the properties.
 
 For information on Futhark itself, please see the [Futhark
 website](https://futhark-lang.org), which includes extensive
