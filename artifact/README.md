@@ -1,7 +1,7 @@
 # Artifact for *Verifying Array Properties in Pure Data-Parallel Programs*
 
 This artifact includes an implementation of PropProp in the Futhark compiler,
-reproduces Fig. 14 from the paper (modulo hardware-dependent timing values) and
+reproduces Table 1 from the paper (modulo hardware-dependent timing values) and
 provides the Dafny programs discussed in Section 2.
 
 > **NOTE:** Since submission we have added additional verified programs
@@ -14,7 +14,7 @@ provides the Dafny programs discussed in Section 2.
 - The artifact image `propprop.tar.gz`
 - 6GB of RAM
 
-Fig. 14 has two parts with different GPU requirements:
+Table 1 has two parts with different GPU requirements:
 
 | Part                      | GPU                        | Notes                                                                             |
 |---------------------------|----------------------------|---------------------------------------------------------------------------------- |
@@ -55,9 +55,9 @@ Inside the container, run the full evaluation:
 $ janet bench.janet
 ```
 
-This produces `results/fig14-<timestamp>.{md,tex,pdf}` reproducing Fig. 14.
+This produces `results/table1-<timestamp>.{md,tex,pdf}` reproducing Table 1.
 Follow [Retrieving results from the container](#retrieving-results-from-the-container)
-or view the results immediately with `bat results/fig14-<timestamp>.md`. See the [Step-by-Step
+or view the results immediately with `bat results/table1-<timestamp>.md`. See the [Step-by-Step
 Instructions](#step-by-step-instructions) below for no GPU
 benchmarking, Dafny verification, and further details.
 
@@ -67,7 +67,7 @@ benchmarking, Dafny verification, and further details.
 
 All scripts accept `--help` for full options. The full evaluation runs
 `futhark verify` on all 10 programs and (with a GPU) the performance benchmarks,
-producing `results/fig14-<timestamp>.{md,tex,pdf}` (see [Output](#output)).
+producing `results/table1-<timestamp>.{md,tex,pdf}` (see [Output](#output)).
 
 ### Starting the container
 
@@ -84,8 +84,8 @@ Inside the container, run `bench.janet` with the appropriate options:
 
 | GPU    | Command                              | Produces                                   |
 |--------|--------------------------------------|--------------------------------------------|
-| NVIDIA | `janet bench.janet`                  | Both tables of Fig. 14                     |
-| None   | `janet bench.janet --skip-perf`      | Verification table only (left of Fig. 14) |
+| NVIDIA | `janet bench.janet`                  | Both tables of Table 1                     |
+| None   | `janet bench.janet --skip-perf`      | Verification table only (left of Table 1) |
 
 ### Dafny programs (Section 2, ~10 min)
 
@@ -111,10 +111,10 @@ to fail. See `dafny/README.md` for details.
   * `verify-<timestamp>.jdn`: per-program verification and compile times
   * `perf-<timestamp>.jdn`: GPU runtimes in microseconds
 * `results/`: generated tables
-  * `fig14-<timestamp>.{md,tex,pdf}`: Fig. 14 in Markdown, LaTeX, and PDF formats
+  * `table1-<timestamp>.{md,tex,pdf}`: Table 1 in Markdown, LaTeX, and PDF formats
 
 > **Note:** Values for the columns "Properties & Annotations", "#S" and "#A" in
-> Fig. 14 are hardware independent and are not collected automatically. Instead
+> Table 1 are hardware independent and are not collected automatically. Instead
 > they are manually read off the source programs and are hardcoded in the
 > table-generating script. Automating this would require an outsized amount of
 > work and/or be brittle.
@@ -128,10 +128,10 @@ $ docker ps   # get container ID
 $ docker cp <container-id>:/artifact/results/<file> <destination>
 ```
 
-For example, to copy the PDF rendering of Fig. 14 to the current directory:
+For example, to copy the PDF rendering of Table 1 to the current directory:
 
 ```
-$ docker cp <container-id>:/artifact/results/fig14-20260317-123456.pdf .
+$ docker cp <container-id>:/artifact/results/table1-20260317-123456.pdf .
 ```
 
 ---
@@ -218,7 +218,7 @@ in Futhark.
 * `bench.janet`: Main orchestration script.
 * `verify.janet`: Benchmarks `futhark verify` check time for each program.
 * `perf.janet`: Runs GPU performance benchmarks for `kmeans_ker` and `partition2`.
-* `table.janet`: Generates Fig. 14 as Markdown, LaTeX, and PDF.
+* `table.janet`: Generates Table 1 as Markdown, LaTeX, and PDF.
 * `dafny.janet`: Runs Dafny verification for Section 2 programs.
 * `util.janet`: Shared utility functions.
 * `futhark-PropProp/`: The modified Futhark compiler (Haskell/Cabal project). See folders `futhark-PropProp/src/Futhark/SoP` and `futhark-PropProp/src/Futhark/Analysis/Properties`.

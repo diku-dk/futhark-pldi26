@@ -283,9 +283,9 @@
   (def perf   (if perf-path   (load-jdn perf-path)   @{}))
 
   (def ts       (util/mk-timestamp))
-  (def md-file  (string output-path "/fig14-" ts ".md"))
-  (def tex-file (string output-path "/fig14-" ts ".tex"))
-  (def pdf-file (string output-path "/fig14-" ts ".pdf"))
+  (def md-file  (string output-path "/table1-" ts ".md"))
+  (def tex-file (string output-path "/table1-" ts ".tex"))
+  (def pdf-file (string output-path "/table1-" ts ".pdf"))
 
   (util/mkdirp output-path)
   (spit md-file  (render-markdown verify perf))
