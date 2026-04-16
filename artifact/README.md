@@ -1,6 +1,12 @@
 # Artifact for *Verifying Array Properties in Pure Data-Parallel Programs*
 
-This artifact includes an implementation of PropProp in the Futhark compiler,
+This artifact is for the paper
+
+> Hinnerskov, N. H., Schenck, R., & Oancea, C. (2026). Verifying Array Properties
+> in Pure Data-Parallel Programs. *Proc. ACM Program. Lang.*, 10(PLDI),
+> Article 226. https://doi.org/10.1145/3808304
+
+The artifact includes an implementation of PropProp in the Futhark compiler,
 reproduces Table 1 from the paper (modulo hardware-dependent timing values) and
 provides the Dafny programs discussed in Section 2.
 
