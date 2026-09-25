@@ -47,7 +47,7 @@ module SOACs {
     ensures |xs| == |ys|
     ensures |xs| == 0 ==> ys == []
     ensures forall i :: 0 <= i < |xs| ==>
-      (i == 0 ==> ys[i] == op(ne, xs[0]))
+      (i == 0 ==> ys[i] == xs[i])
       && (i > 0 ==> ys[i] == op(ys[i-1], xs[i]))
   {
     if |xs| == 0 then []
